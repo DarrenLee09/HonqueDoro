@@ -1,0 +1,127 @@
+<div class="timer-container">
+  <div class="timer-card">
+    <!-- Timer Header -->
+    <div class="timer-header">
+      <h2 class="mode-title">
+        <span class="mode-icon">{{ modeIcon }}</span>
+        {{ modeDisplayName }}
+      </h2>
+      <div class="session-info">
+        <span>Session {{ state.completedSessions + 1 }} • {{ state.completedSessions }} completed</span>
+      </div>
+    </div>
+
+    <!-- Timer Display -->
+    <div class="timer-display">
+      <div class="time-circle">
+        <svg class="progress-ring" width="300" height="300">
+          <circle
+            class="progress-ring-track"
+            cx="150"
+            cy="150"
+            r="135"
+            fill="transparent"
+            stroke="rgba(255, 255, 255, 0.2)"
+            stroke-width="10"
+          />
+          <circle
+            class="progress-ring-progress"
+            cx="150"
+            cy="150"
+            r="135"
+            fill="transparent"
+            stroke="currentColor"
+            stroke-width="10"
+            stroke-linecap="round"
+            [style.stroke-dasharray]="848"
+            [style.stroke-dashoffset]="848 - (848 * progressPercentage / 100)"
+            [style.transform]="'rotate(-90deg)'"
+            [style.transform-origin]="'50% 50%'"
+          />
+        </svg>
+        <div class="time-text">{{ formattedTime }}</div>
+      </div>
+    </div>
+
+    <!-- Timer Controls -->
+    <div class="timer-controls">
+      <button
+        *ngIf="!state.isRunning"
+        (click)="startTimer()"
+        class="control-btn start-btn"
+        [disabled]="state.currentTime === 0"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        Start
+      </button>
+      
+      <button
+        *ngIf="state.isRunning"
+        (click)="pauseTimer()"
+        class="control-btn pause-btn"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+        </svg>
+        Pause
+      </button>
+
+      <button
+        (click)="resetTimer()"
+        class="control-btn reset-btn"
+        [disabled]="state.currentTime === getCurrentModeDuration() && !state.isRunning"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/>
+        </svg>
+        Reset
+      </button>
+    </div>
+
+    <!-- Timer Stats -->
+    <div class="timer-stats">
+      <div class="stat-item">
+        <div class="stat-number">{{ state.totalSessions }}</div>
+        <div class="stat-label">Total Sessions</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">{{ state.completedSessions }}</div>
+        <div class="stat-label">Completed Today</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">{{ state.completedSessions % 4 }}</div>
+        <div class="stat-label">Until Long Break</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <h3>Quick Actions</h3>
+    <div class="action-buttons">
+      <button
+        (click)="state.mode = 'work'; resetTimer()"
+        class="action-btn work-btn"
+        [class.active]="state.mode === 'work'"
+      >
+        🍅 Work (25min)
+      </button>
+      <button
+        (click)="state.mode = 'shortBreak'; resetTimer()"
+        class="action-btn break-btn"
+        [class.active]="state.mode === 'shortBreak'"
+      >
+        ☕ Short Break (5min)
+      </button>
+      <button
+        (click)="state.mode = 'longBreak'; resetTimer()"
+        class="action-btn break-btn"
+        [class.active]="state.mode === 'longBreak'"
+      >
+        🌴 Long Break (15min)
+      </button>
+    </div>
+  </div>
+</div>

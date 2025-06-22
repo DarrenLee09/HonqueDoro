@@ -1,0 +1,216 @@
+<div class="settings-container">
+  <div class="settings-header">
+    <h1>⚙️ Settings</h1>
+    <p>Customize your Pomodoro experience to fit your workflow</p>
+  </div>
+
+  <form (ngSubmit)="saveSettings()" class="settings-form">
+    <!-- Timer Durations -->
+    <div class="settings-section">
+      <h2>⏰ Timer Durations</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="workDuration">Work Session</label>
+          <div class="input-group">
+            <input
+              type="number"
+              id="workDuration"
+              [(ngModel)]="settings.workDuration"
+              name="workDuration"
+              min="1"
+              max="60"
+              class="form-input"
+            />
+            <span class="input-suffix">minutes</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="shortBreakDuration">Short Break</label>
+          <div class="input-group">
+            <input
+              type="number"
+              id="shortBreakDuration"
+              [(ngModel)]="settings.shortBreakDuration"
+              name="shortBreakDuration"
+              min="1"
+              max="30"
+              class="form-input"
+            />
+            <span class="input-suffix">minutes</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="longBreakDuration">Long Break</label>
+          <div class="input-group">
+            <input
+              type="number"
+              id="longBreakDuration"
+              [(ngModel)]="settings.longBreakDuration"
+              name="longBreakDuration"
+              min="1"
+              max="60"
+              class="form-input"
+            />
+            <span class="input-suffix">minutes</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sessionsUntilLongBreak">Sessions Until Long Break</label>
+          <div class="input-group">
+            <input
+              type="number"
+              id="sessionsUntilLongBreak"
+              [(ngModel)]="settings.sessionsUntilLongBreak"
+              name="sessionsUntilLongBreak"
+              min="2"
+              max="10"
+              class="form-input"
+            />
+            <span class="input-suffix">sessions</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Automation -->
+    <div class="settings-section">
+      <h2>🤖 Automation</h2>
+      <div class="form-grid">
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="settings.autoStartBreaks"
+              name="autoStartBreaks"
+              class="checkbox-input"
+            />
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">
+              <strong>Auto-start breaks</strong>
+              <small>Automatically start break timers when work sessions end</small>
+            </span>
+          </label>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="settings.autoStartPomodoros"
+              name="autoStartPomodoros"
+              class="checkbox-input"
+            />
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">
+              <strong>Auto-start work sessions</strong>
+              <small>Automatically start work sessions when breaks end</small>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="settings-section">
+      <h2>🔔 Notifications</h2>
+      <div class="form-grid">
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="settings.soundEnabled"
+              name="soundEnabled"
+              class="checkbox-input"
+            />
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">
+              <strong>Sound notifications</strong>
+              <small>Play sound when sessions start and end</small>
+            </span>
+          </label>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="settings.desktopNotifications"
+              name="desktopNotifications"
+              class="checkbox-input"
+            />
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">
+              <strong>Desktop notifications</strong>
+              <small>Show browser notifications for session changes</small>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Goals -->
+    <div class="settings-section">
+      <h2>🎯 Goals</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="dailyGoal">Daily Session Goal</label>
+          <div class="input-group">
+            <input
+              type="number"
+              id="dailyGoal"
+              [(ngModel)]="settings.dailyGoal"
+              name="dailyGoal"
+              min="1"
+              max="20"
+              class="form-input"
+            />
+            <span class="input-suffix">sessions</span>
+          </div>
+          <small class="form-help">Set your target number of work sessions per day</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appearance -->
+    <div class="settings-section">
+      <h2>🎨 Appearance</h2>
+      <div class="form-grid">
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="settings.darkMode"
+              name="darkMode"
+              class="checkbox-input"
+            />
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">
+              <strong>Dark mode</strong>
+              <small>Use dark theme for the application</small>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="settings-actions">
+      <button type="submit" class="btn btn-primary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+        </svg>
+        Save Settings
+      </button>
+      
+      <button type="button" (click)="resetSettings()" class="btn btn-secondary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/>
+        </svg>
+        Reset to Defaults
+      </button>
+    </div>
+  </form>
+</div>

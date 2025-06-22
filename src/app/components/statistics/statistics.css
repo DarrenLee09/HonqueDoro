@@ -1,0 +1,455 @@
+.statistics-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.statistics-header {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.statistics-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.statistics-header p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Stats Overview */
+.stats-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card.primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.stat-icon {
+  font-size: 2rem;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.stat-card.primary .stat-number {
+  color: white;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.stat-card.primary .stat-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Chart Section */
+.chart-section {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.chart-section h2 {
+  margin: 0 0 1.5rem 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.chart-container {
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 15px;
+  padding: 1.5rem;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 200px;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.bar-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bar-wrapper {
+  height: 150px;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.bar {
+  width: 60%;
+  background: linear-gradient(to top, #667eea, #764ba2);
+  border-radius: 4px 4px 0 0;
+  min-height: 5px;
+  transition: all 0.5s ease;
+  position: relative;
+}
+
+.bar:hover {
+  background: linear-gradient(to top, #5a6fd8, #6a4190);
+  transform: scaleY(1.05);
+}
+
+.bar-label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.bar-value {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 0.8rem;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.legend-color.sessions {
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  border-radius: 3px;
+}
+
+/* Achievements */
+.achievements-section {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.achievements-section h2 {
+  margin: 0 0 1.5rem 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.achievements-progress {
+  background: rgba(102, 126, 234, 0.05);
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.achievements-progress span {
+  font-weight: 600;
+  color: #2c3e50;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 4px;
+  transition: width 0.8s ease;
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.achievement-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.achievement-card.earned {
+  border-color: rgba(76, 175, 80, 0.3);
+  background: rgba(76, 175, 80, 0.05);
+}
+
+.achievement-card.locked {
+  opacity: 0.6;
+  border-color: rgba(158, 158, 158, 0.3);
+}
+
+.achievement-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.achievement-icon {
+  font-size: 2rem;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.achievement-content {
+  flex: 1;
+}
+
+.achievement-title {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.achievement-description {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+.achievement-status {
+  font-size: 1.2rem;
+}
+
+.earned-badge {
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+.locked-badge {
+  color: #999;
+}
+
+/* Breakdown Table */
+.breakdown-section {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.breakdown-section h2 {
+  margin: 0 0 1.5rem 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.breakdown-table {
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table-header,
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 2fr;
+  gap: 1rem;
+}
+
+.table-header {
+  background: rgba(102, 126, 234, 0.1);
+  padding: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.table-row {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  transition: background-color 0.3s ease;
+}
+
+.table-row:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-cell {
+  display: flex;
+  align-items: center;
+  color: #2c3e50;
+}
+
+.table-cell.day {
+  font-weight: 600;
+}
+
+.table-cell.sessions {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.mini-progress {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.mini-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .statistics-container {
+    padding: 0.5rem;
+    gap: 1.5rem;
+  }
+
+  .statistics-header {
+    padding: 1.5rem;
+  }
+
+  .statistics-header h1 {
+    font-size: 2rem;
+  }
+
+  .stats-overview {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+
+  .stat-card {
+    padding: 1.25rem;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+  }
+
+  .chart-section,
+  .achievements-section,
+  .breakdown-section {
+    padding: 1.5rem;
+  }
+
+  .chart-bars {
+    height: 150px;
+  }
+
+  .bar-wrapper {
+    height: 100px;
+  }
+
+  .achievements-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .table-cell.progress,
+  .header-cell:last-child {
+    grid-column: 1 / -1;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+
+  .achievement-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .chart-bars {
+    gap: 0.5rem;
+  }
+
+  .bar {
+    width: 80%;
+  }
+}

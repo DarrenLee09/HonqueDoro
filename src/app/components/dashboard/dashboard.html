@@ -1,0 +1,119 @@
+<div class="dashboard-container">
+  <!-- Welcome Section -->
+  <div class="welcome-section">
+    <h1>🍅 Welcome to PomodoroFlow</h1>
+    <p>Stay focused, be productive, and build better habits one session at a time.</p>
+    <div class="quick-start">
+      <button routerLink="/timer" class="start-session-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        Start Pomodoro Session
+      </button>
+    </div>
+  </div>
+
+  <!-- Today's Stats -->
+  <div class="stats-grid">
+    <div class="stat-card primary">
+      <div class="stat-icon">🍅</div>
+      <div class="stat-content">
+        <div class="stat-number">{{ todayStats.completedSessions }}</div>
+        <div class="stat-label">Sessions Today</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⏱️</div>
+      <div class="stat-content">
+        <div class="stat-number">{{ todayStats.totalWorkTime }}m</div>
+        <div class="stat-label">Focus Time</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-content">
+        <div class="stat-number">{{ todayStats.currentStreak }}</div>
+        <div class="stat-label">Current Streak</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-content">
+        <div class="stat-number">{{ todayStats.bestStreak }}</div>
+        <div class="stat-label">Best Streak</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Progress -->
+  <div class="progress-section">
+    <h2>📈 Weekly Progress</h2>
+    <div class="progress-card">
+      <div class="progress-header">
+        <span>{{ weeklyGoal.completed }} / {{ weeklyGoal.target }} sessions</span>
+        <span class="progress-percentage">{{ weeklyProgressPercentage | number:'1.0-0' }}%</span>
+      </div>
+      <div class="progress-bar">
+        <div 
+          class="progress-fill" 
+          [style.width.%]="weeklyProgressPercentage"
+        ></div>
+      </div>
+      <div class="progress-message">
+        <span *ngIf="weeklyProgressPercentage >= 100" class="success">🎉 Goal achieved! Amazing work!</span>
+        <span *ngIf="weeklyProgressPercentage >= 80 && weeklyProgressPercentage < 100" class="almost">🎯 Almost there! Keep going!</span>
+        <span *ngIf="weeklyProgressPercentage < 80" class="keep-going">💪 You've got this! Stay consistent!</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="activity-section">
+    <h2>📝 Recent Sessions</h2>
+    <div class="activity-list">
+      <div 
+        *ngFor="let session of recentSessions" 
+        class="activity-item"
+        [class.work-session]="session.type === 'Work'"
+        [class.break-session]="session.type === 'Break'"
+      >
+        <div class="activity-icon">
+          <span *ngIf="session.type === 'Work'">🍅</span>
+          <span *ngIf="session.type === 'Break'">☕</span>
+        </div>
+        <div class="activity-content">
+          <div class="activity-title">{{ session.type }} Session</div>
+          <div class="activity-duration">{{ session.duration }} minutes</div>
+        </div>
+        <div class="activity-time">{{ formatTimeAgo(session.completedAt) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="actions-section">
+    <h2>⚡ Quick Actions</h2>
+    <div class="action-grid">
+      <button routerLink="/timer" class="action-card">
+        <div class="action-icon">🍅</div>
+        <div class="action-title">Start Timer</div>
+        <div class="action-desc">Begin a new Pomodoro session</div>
+      </button>
+
+      <button routerLink="/statistics" class="action-card">
+        <div class="action-icon">📊</div>
+        <div class="action-title">View Stats</div>
+        <div class="action-desc">Analyze your productivity</div>
+      </button>
+
+      <button routerLink="/settings" class="action-card">
+        <div class="action-icon">⚙️</div>
+        <div class="action-title">Settings</div>
+        <div class="action-desc">Customize your experience</div>
+      </button>
+    </div>
+  </div>
+</div>
