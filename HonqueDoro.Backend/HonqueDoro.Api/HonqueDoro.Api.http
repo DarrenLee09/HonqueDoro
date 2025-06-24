@@ -1,0 +1,6 @@
+@HonqueDoro.Api_HostAddress = http://localhost:5116
+
+GET {{HonqueDoro.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
