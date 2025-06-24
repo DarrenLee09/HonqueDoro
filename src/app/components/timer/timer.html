@@ -3,14 +3,14 @@
     <!-- Timer Header -->
     <div class="timer-header">
       <h2 class="mode-title">
-        <span class="mode-icon">{{ modeIcon }}</span>
-        {{ modeDisplayName }}
+        <span class="mode-icon">{{ modeIcon() }}</span>
+        {{ modeDisplayName() }}
       </h2>
       <div class="session-info">
-        <span>Session {{ state.completedSessions + 1 }} • {{ state.completedSessions }} completed</span>
+        <span>Session {{ completedSessions() + 1 }} • {{ completedSessions() }} completed</span>
       </div>
       <div class="status-info">
-        <span class="status-badge">{{ statusIndicator }}</span>
+        <span class="status-badge">{{ statusIndicator() }}</span>
       </div>
     </div>
 
@@ -39,19 +39,19 @@
             stroke-width="12"
             stroke-linecap="round"
             stroke-dasharray="847.8"
-            [style.stroke-dashoffset]="847.8 - (847.8 * progressPercentage / 100)"
-            [class.completed]="state.currentTime === 0"
-            [class.warning]="state.currentTime <= 300 && state.currentTime > 60"
-            [class.urgent]="state.currentTime <= 60 && state.currentTime > 0"
+            [style.stroke-dashoffset]="847.8 - (847.8 * progressPercentage() / 100)"
+            [class.completed]="currentTime() === 0"
+            [class.warning]="currentTime() <= 300 && currentTime() > 60"
+            [class.urgent]="currentTime() <= 60 && currentTime() > 0"
           />
         </svg>
         <div class="time-display-content">
-          <div class="time-text">{{ formattedTime }}</div>
-          <div class="eta-display" *ngIf="state.estimatedEndTime && state.isRunning">
+          <div class="time-text">{{ formattedTime() }}</div>
+          <div class="eta-display" *ngIf="estimatedEndTime() && isRunning()">
             <div class="eta-label">ETA</div>
-            <div class="eta-time">{{ formattedETA }}</div>
+            <div class="eta-time">{{ formattedETA() }}</div>
           </div>
-          <div class="progress-text">{{ progressPercentage | number:'1.1-1' }}%</div>
+          <div class="progress-text">{{ progressPercentage() | number:'1.1-1' }}%</div>
         </div>
       </div>
     </div>
@@ -59,19 +59,19 @@
     <!-- Timer Controls -->
     <div class="timer-controls">
       <button
-        *ngIf="!state.isRunning"
+        *ngIf="!isRunning()"
         (click)="startTimer()"
         class="control-btn start-btn"
-        [disabled]="state.currentTime === 0"
+        [disabled]="currentTime() === 0"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
           <path d="M8 5v14l11-7z"/>
         </svg>
-        {{ state.activeSessionId ? 'Resume' : 'Start' }}
+        {{ activeSessionId() ? 'Resume' : 'Start' }}
       </button>
       
       <button
-        *ngIf="state.isRunning"
+        *ngIf="isRunning()"
         (click)="pauseTimer()"
         class="control-btn pause-btn"
       >
@@ -84,43 +84,43 @@
       <button
         (click)="resetTimer()"
         class="control-btn reset-btn"
-        [disabled]="state.currentTime === getCurrentModeDuration() && !state.isRunning && !state.activeSessionId"
+        [disabled]="currentTime() === getCurrentModeDuration() && !isRunning() && !activeSessionId()"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/>
         </svg>
-        {{ state.activeSessionId ? 'Cancel' : 'Reset' }}
+        {{ activeSessionId() ? 'Cancel' : 'Reset' }}
       </button>
     </div>
 
     <!-- Time Information -->
-    <div class="time-info" *ngIf="state.isRunning || state.activeSessionId">
+    <div class="time-info" *ngIf="isRunning() || activeSessionId()">
       <div class="time-item">
         <div class="time-label">Elapsed</div>
         <div class="time-value">{{ formatElapsedTime() }}</div>
       </div>
-      <div class="time-item" *ngIf="state.estimatedEndTime">
+      <div class="time-item" *ngIf="estimatedEndTime()">
         <div class="time-label">Finish Time</div>
-        <div class="time-value">{{ formattedETA }}</div>
+        <div class="time-value">{{ formattedETA() }}</div>
       </div>
       <div class="time-item">
         <div class="time-label">Remaining</div>
-        <div class="time-value">{{ formattedTime }}</div>
+        <div class="time-value">{{ formattedTime() }}</div>
       </div>
     </div>
 
     <!-- Timer Stats -->
     <div class="timer-stats">
       <div class="stat-item">
-        <div class="stat-number">{{ state.totalSessions }}</div>
+        <div class="stat-number">{{ totalSessions() }}</div>
         <div class="stat-label">Total Sessions</div>
       </div>
       <div class="stat-item">
-        <div class="stat-number">{{ state.completedSessions }}</div>
+        <div class="stat-number">{{ completedSessions() }}</div>
         <div class="stat-label">Completed Today</div>
       </div>
       <div class="stat-item">
-        <div class="stat-number">{{ remainingSessionsUntilLongBreak }}</div>
+        <div class="stat-number">{{ remainingSessionsUntilLongBreak() }}</div>
         <div class="stat-label">Until Long Break</div>
       </div>
     </div>
@@ -133,24 +133,24 @@
       <button
         (click)="changeMode('work')"
         class="action-btn work-btn"
-        [class.active]="state.mode === 'work'"
-        [disabled]="state.isRunning"
+        [class.active]="mode() === 'work'"
+        [disabled]="isRunning()"
       >
         🍅 Work (25min)
       </button>
       <button
         (click)="changeMode('shortBreak')"
         class="action-btn break-btn"
-        [class.active]="state.mode === 'shortBreak'"
-        [disabled]="state.isRunning"
+        [class.active]="mode() === 'shortBreak'"
+        [disabled]="isRunning()"
       >
         ☕ Short Break (5min)
       </button>
       <button
         (click)="changeMode('longBreak')"
         class="action-btn break-btn"
-        [class.active]="state.mode === 'longBreak'"
-        [disabled]="state.isRunning"
+        [class.active]="mode() === 'longBreak'"
+        [disabled]="isRunning()"
       >
         🌴 Long Break (15min)
       </button>
