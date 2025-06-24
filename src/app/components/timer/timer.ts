@@ -143,8 +143,21 @@ export class Timer implements OnInit, OnDestroy {
     return this.tasks().filter(task => task.completed);
   });
 
+  sortedTasks = computed(() => {
+    const priorityOrder = { high: 3, medium: 2, low: 1 };
+    return this.tasks().sort((a, b) => {
+      // First sort by priority (high to low)
+      const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
+      if (priorityDiff !== 0) return priorityDiff;
+      
+      // Then sort by creation date (newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  });
+
   visibleTasks = computed(() => {
-    return this.showCompletedTasks() ? this.tasks() : this.activeTasks();
+    const tasks = this.showCompletedTasks() ? this.sortedTasks() : this.sortedTasks().filter(task => !task.completed);
+    return tasks;
   });
 
   selectedTask = computed(() => {
@@ -348,6 +361,7 @@ export class Timer implements OnInit, OnDestroy {
       }
       
       this.stopTimer();
+      this.isRunning.set(false); // Ensure timer is stopped
       this.currentTime.set(this.getCurrentModeDuration());
       this.activeSessionId.set(undefined);
       this.estimatedEndTime.set(undefined);
@@ -356,6 +370,7 @@ export class Timer implements OnInit, OnDestroy {
       console.error('Error resetting timer:', error);
       // Fallback to local reset
       this.stopTimer();
+      this.isRunning.set(false); // Ensure timer is stopped
       this.currentTime.set(this.getCurrentModeDuration());
       this.activeSessionId.set(undefined);
       this.estimatedEndTime.set(undefined);
