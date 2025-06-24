@@ -317,15 +317,21 @@
 }
 
 .reset-btn {
-  background: linear-gradient(45deg, #9e9e9e, #757575);
-  color: white;
-  border: 2px solid #9e9e9e;
+  background: rgba(239, 68, 68, 0.8);
+  border-color: rgba(239, 68, 68, 0.8);
 }
 
 .reset-btn:hover:not(:disabled) {
-  background: linear-gradient(45deg, #757575, #616161);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(158, 158, 158, 0.4);
+  background: rgba(239, 68, 68, 1);
+}
+
+.skip-btn {
+  background: rgba(156, 163, 175, 0.8);
+  border-color: rgba(156, 163, 175, 0.8);
+}
+
+.skip-btn:hover:not(:disabled) {
+  background: rgba(156, 163, 175, 1);
 }
 
 .control-btn:disabled {

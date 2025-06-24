@@ -338,19 +338,93 @@ export class Timer implements OnInit, OnDestroy {
   }
 
   async resetTimer(): Promise<void> {
-    if (this.activeSessionId()) {
-      try {
-        await this.http.delete(`${this.apiUrl}/cancel/${this.activeSessionId()}`).toPromise();
-        this.activeSessionId.set(undefined);
-      } catch (error) {
-        console.error('Error cancelling session:', error);
+    try {
+      if (this.activeSessionId()) {
+        // Cancel active session on backend
+        await this.http.delete(`${this.apiUrl}/${this.activeSessionId()}`).toPromise();
       }
+      
+      this.stopTimer();
+      this.currentTime.set(this.getCurrentModeDuration());
+      this.activeSessionId.set(undefined);
+      this.estimatedEndTime.set(undefined);
+      this.serverSync.set(false);
+    } catch (error) {
+      console.error('Error resetting timer:', error);
+      // Fallback to local reset
+      this.stopTimer();
+      this.currentTime.set(this.getCurrentModeDuration());
+      this.activeSessionId.set(undefined);
+      this.estimatedEndTime.set(undefined);
+      this.serverSync.set(false);
     }
-    
-    this.stopTimer();
-    this.currentTime.set(this.getCurrentModeDuration());
-    this.isRunning.set(false);
-    this.estimatedEndTime.set(undefined);
+  }
+
+  async skipTimer(): Promise<void> {
+    try {
+      if (this.activeSessionId()) {
+        // Complete the session early on backend
+        await this.http.post(`${this.apiUrl}/${this.activeSessionId()}/complete`, {}).toPromise();
+      }
+      
+      this.stopTimer();
+      this.activeSessionId.set(undefined);
+      this.estimatedEndTime.set(undefined);
+      this.serverSync.set(false);
+      this.isRunning.set(false);
+      
+      // Use the same logic as completeSession
+      if (this.mode() === 'work') {
+        this.completedSessions.update(sessions => sessions + 1);
+        this.totalSessions.update(sessions => sessions + 1);
+        
+        // Determine next mode
+        if (this.completedSessions() % this.sessionsUntilLongBreak === 0) {
+          this.mode.set('longBreak');
+          this.currentTime.set(this.longBreakDuration);
+        } else {
+          this.mode.set('shortBreak');
+          this.currentTime.set(this.shortBreakDuration);
+        }
+      } else {
+        // Break finished, start work session
+        this.mode.set('work');
+        this.currentTime.set(this.workDuration);
+      }
+      
+      // Play notification sound
+      this.playNotificationSound();
+    } catch (error) {
+      console.error('Error skipping timer:', error);
+      // Fallback to local skip
+      this.stopTimer();
+      this.activeSessionId.set(undefined);
+      this.estimatedEndTime.set(undefined);
+      this.serverSync.set(false);
+      this.isRunning.set(false);
+      
+      // Use the same logic as completeSession
+      if (this.mode() === 'work') {
+        this.completedSessions.update(sessions => sessions + 1);
+        this.totalSessions.update(sessions => sessions + 1);
+        
+        // Determine next mode
+        if (this.completedSessions() % this.sessionsUntilLongBreak === 0) {
+          this.mode.set('longBreak');
+          this.currentTime.set(this.longBreakDuration);
+        } else {
+          this.mode.set('shortBreak');
+          this.currentTime.set(this.shortBreakDuration);
+        }
+      } else {
+        // Break finished, start work session
+        this.mode.set('work');
+        this.currentTime.set(this.workDuration);
+      }
+      
+      // Play notification sound
+      this.playNotificationSound();
+    }
   }
 
   private async checkActiveSession(): Promise<void> {
