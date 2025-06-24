@@ -7,7 +7,7 @@
         {{ modeDisplayName() }}
       </h2>
       <div class="session-info">
-        <span>Session {{ completedSessions() + 1 }} • {{ completedSessions() }} completed</span>
+        <span>Session {{ completedToday() + 1 }} • {{ completedToday() }} completed</span>
       </div>
       <div class="status-info">
         <span class="status-badge">{{ statusIndicator() }}</span>
@@ -124,10 +124,10 @@
     <div class="timer-stats">
       <div class="stat-item">
         <div class="stat-number">{{ totalSessions() }}</div>
-        <div class="stat-label">Total Sessions</div>
+        <div class="stat-label">Total Work Sessions</div>
       </div>
       <div class="stat-item">
-        <div class="stat-number">{{ completedSessions() }}</div>
+        <div class="stat-number">{{ completedToday() }}</div>
         <div class="stat-label">Completed Today</div>
       </div>
       <div class="stat-item">

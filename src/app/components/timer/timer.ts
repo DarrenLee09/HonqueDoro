@@ -58,8 +58,9 @@ export class Timer implements OnInit, OnDestroy {
   isRunning = signal(false);
   currentTime = signal(this.workDuration);
   mode = signal<'work' | 'shortBreak' | 'longBreak'>('work');
-  completedSessions = signal(0);
-  totalSessions = signal(0);
+  completedSessions = signal(0); // Total work sessions completed (all time)
+  completedToday = signal(0); // Long breaks completed (resets daily)
+  totalSessions = signal(0); // Total work sessions (same as completedSessions for now)
   activeSessionId = signal<number | undefined>(undefined);
   estimatedEndTime = signal<Date | undefined>(undefined);
   serverSync = signal(false);
@@ -128,7 +129,8 @@ export class Timer implements OnInit, OnDestroy {
   });
 
   remainingSessionsUntilLongBreak = computed(() => {
-    return this.sessionsUntilLongBreak - (this.completedSessions() % this.sessionsUntilLongBreak);
+    const workSessionsSinceLongBreak = this.completedSessions() - (this.completedToday() * this.sessionsUntilLongBreak);
+    return Math.max(0, this.sessionsUntilLongBreak - workSessionsSinceLongBreak);
   });
 
   // Task computed values
@@ -375,19 +377,28 @@ export class Timer implements OnInit, OnDestroy {
       
       // Use the same logic as completeSession
       if (this.mode() === 'work') {
+        // Work session completed - increment work session counters
         this.completedSessions.update(sessions => sessions + 1);
         this.totalSessions.update(sessions => sessions + 1);
         
-        // Determine next mode
-        if (this.completedSessions() % this.sessionsUntilLongBreak === 0) {
+        // Check if we need a long break (every 4 work sessions)
+        const workSessionsSinceLongBreak = this.completedSessions() - (this.completedToday() * this.sessionsUntilLongBreak);
+        if (workSessionsSinceLongBreak >= this.sessionsUntilLongBreak) {
+          // Time for a long break
           this.mode.set('longBreak');
           this.currentTime.set(this.longBreakDuration);
         } else {
+          // Take a short break
           this.mode.set('shortBreak');
           this.currentTime.set(this.shortBreakDuration);
         }
+      } else if (this.mode() === 'longBreak') {
+        // Long break completed - increment completedToday and go to work
+        this.completedToday.update(breaks => breaks + 1);
+        this.mode.set('work');
+        this.currentTime.set(this.workDuration);
       } else {
-        // Break finished, start work session
+        // Short break completed - go to work
         this.mode.set('work');
         this.currentTime.set(this.workDuration);
       }
@@ -405,19 +416,28 @@ export class Timer implements OnInit, OnDestroy {
       
       // Use the same logic as completeSession
       if (this.mode() === 'work') {
+        // Work session completed - increment work session counters
         this.completedSessions.update(sessions => sessions + 1);
         this.totalSessions.update(sessions => sessions + 1);
         
-        // Determine next mode
-        if (this.completedSessions() % this.sessionsUntilLongBreak === 0) {
+        // Check if we need a long break (every 4 work sessions)
+        const workSessionsSinceLongBreak = this.completedSessions() - (this.completedToday() * this.sessionsUntilLongBreak);
+        if (workSessionsSinceLongBreak >= this.sessionsUntilLongBreak) {
+          // Time for a long break
           this.mode.set('longBreak');
           this.currentTime.set(this.longBreakDuration);
         } else {
+          // Take a short break
           this.mode.set('shortBreak');
           this.currentTime.set(this.shortBreakDuration);
         }
+      } else if (this.mode() === 'longBreak') {
+        // Long break completed - increment completedToday and go to work
+        this.completedToday.update(breaks => breaks + 1);
+        this.mode.set('work');
+        this.currentTime.set(this.workDuration);
       } else {
-        // Break finished, start work session
+        // Short break completed - go to work
         this.mode.set('work');
         this.currentTime.set(this.workDuration);
       }
@@ -529,19 +549,28 @@ export class Timer implements OnInit, OnDestroy {
     }
     
     if (this.mode() === 'work') {
+      // Work session completed - increment work session counters
       this.completedSessions.update(sessions => sessions + 1);
       this.totalSessions.update(sessions => sessions + 1);
       
-      // Determine next mode
-      if (this.completedSessions() % this.sessionsUntilLongBreak === 0) {
+      // Check if we need a long break (every 4 work sessions)
+      const workSessionsSinceLongBreak = this.completedSessions() - (this.completedToday() * this.sessionsUntilLongBreak);
+      if (workSessionsSinceLongBreak >= this.sessionsUntilLongBreak) {
+        // Time for a long break
         this.mode.set('longBreak');
         this.currentTime.set(this.longBreakDuration);
       } else {
+        // Take a short break
         this.mode.set('shortBreak');
         this.currentTime.set(this.shortBreakDuration);
       }
+    } else if (this.mode() === 'longBreak') {
+      // Long break completed - increment completedToday and go to work
+      this.completedToday.update(breaks => breaks + 1);
+      this.mode.set('work');
+      this.currentTime.set(this.workDuration);
     } else {
-      // Break finished, start work session
+      // Short break completed - go to work
       this.mode.set('work');
       this.currentTime.set(this.workDuration);
     }
