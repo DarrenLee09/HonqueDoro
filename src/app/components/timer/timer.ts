@@ -75,6 +75,7 @@ export class Timer implements OnInit, OnDestroy {
   newTaskCategory = signal('');
   selectedTaskId = signal<string | undefined>(undefined);
   showCompletedTasks = signal(false);
+  completingTaskId = signal<string | undefined>(undefined); // For animation tracking
 
   // Computed values
   formattedTime = computed(() => {
@@ -381,6 +382,9 @@ export class Timer implements OnInit, OnDestroy {
         this.completedSessions.update(sessions => sessions + 1);
         this.totalSessions.update(sessions => sessions + 1);
         
+        // Auto-increment Pomodoro count for selected task
+        this.autoIncrementTaskPomodoros();
+        
         // Check if we need a long break (every 4 work sessions)
         const workSessionsSinceLongBreak = this.completedSessions() - (this.completedToday() * this.sessionsUntilLongBreak);
         if (workSessionsSinceLongBreak >= this.sessionsUntilLongBreak) {
@@ -419,6 +423,9 @@ export class Timer implements OnInit, OnDestroy {
         // Work session completed - increment work session counters
         this.completedSessions.update(sessions => sessions + 1);
         this.totalSessions.update(sessions => sessions + 1);
+        
+        // Auto-increment Pomodoro count for selected task
+        this.autoIncrementTaskPomodoros();
         
         // Check if we need a long break (every 4 work sessions)
         const workSessionsSinceLongBreak = this.completedSessions() - (this.completedToday() * this.sessionsUntilLongBreak);
@@ -553,6 +560,9 @@ export class Timer implements OnInit, OnDestroy {
       this.completedSessions.update(sessions => sessions + 1);
       this.totalSessions.update(sessions => sessions + 1);
       
+      // Auto-increment Pomodoro count for selected task
+      this.autoIncrementTaskPomodoros();
+      
       // Check if we need a long break (every 4 work sessions)
       const workSessionsSinceLongBreak = this.completedSessions() - (this.completedToday() * this.sessionsUntilLongBreak);
       if (workSessionsSinceLongBreak >= this.sessionsUntilLongBreak) {
@@ -631,5 +641,29 @@ export class Timer implements OnInit, OnDestroy {
     this.mode.set(mode);
     this.currentTime.set(this.getCurrentModeDuration());
     this.estimatedEndTime.set(undefined);
+  }
+
+  // Auto-increment Pomodoro count for selected task when work session completes
+  private autoIncrementTaskPomodoros(): void {
+    const selectedTask = this.selectedTask();
+    if (selectedTask && !selectedTask.completed && this.mode() === 'work') {
+      this.updateTaskPomodoros(selectedTask.id, true);
+      
+      // Check if task should be auto-completed
+      if (selectedTask.completedPomodoros + 1 >= selectedTask.estimatedPomodoros) {
+        this.autoCompleteTask(selectedTask.id);
+      }
+    }
+  }
+
+  // Auto-complete task with animation
+  private autoCompleteTask(taskId: string): void {
+    this.completingTaskId.set(taskId);
+    
+    // Delay the actual completion to allow for animation
+    setTimeout(() => {
+      this.toggleTaskComplete(taskId);
+      this.completingTaskId.set(undefined);
+    }, 500);
   }
 }

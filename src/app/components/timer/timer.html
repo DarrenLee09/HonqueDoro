@@ -251,6 +251,7 @@
         class="task-item"
         [class.completed]="task.completed"
         [class.selected]="selectedTaskId() === task.id"
+        [class.completing]="completingTaskId() === task.id"
         (click)="selectTask(task.id)"
       >
         <div class="task-content">
@@ -263,7 +264,10 @@
                 (click)="$event.stopPropagation()"
               >
             </div>
-            <div class="task-title">{{ task.title }}</div>
+            <div class="task-title">
+              {{ task.title }}
+              <span *ngIf="selectedTaskId() === task.id && !task.completed" class="selected-indicator">🎯</span>
+            </div>
             <div class="task-priority" [class]="'priority-' + task.priority">
               {{ task.priority }}
             </div>
@@ -278,9 +282,17 @@
               <span class="category-tag">{{ task.category }}</span>
             </div>
             <div class="task-pomodoros">
-              <span class="pomodoro-count">
-                {{ task.completedPomodoros }}/{{ task.estimatedPomodoros }} 🍅
-              </span>
+              <div class="pomodoro-progress">
+                <div class="pomodoro-progress-bar">
+                  <div 
+                    class="pomodoro-progress-fill" 
+                    [style.width.%]="(task.completedPomodoros / task.estimatedPomodoros) * 100"
+                  ></div>
+                </div>
+                <span class="pomodoro-count" [class.incrementing]="completingTaskId() === task.id">
+                  {{ task.completedPomodoros }}/{{ task.estimatedPomodoros }} 🍅
+                </span>
+              </div>
               <div class="pomodoro-controls">
                 <button 
                   (click)="updateTaskPomodoros(task.id, false); $event.stopPropagation()"
