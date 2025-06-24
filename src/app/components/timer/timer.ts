@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 
 interface ActiveSession {
   id: number;
-  type: string;
+  type: string | number;
   status: string;
   durationMinutes: number;
   remainingSeconds: number;
@@ -46,7 +46,7 @@ interface Task {
 export class Timer implements OnInit, OnDestroy {
   private timerSubscription?: Subscription;
   private syncSubscription?: Subscription;
-  private readonly apiUrl = 'http://localhost:5117/api/sessions'; // Backend API URL
+  private readonly apiUrl = 'http://localhost:5116/api/sessions'; // Backend API URL
   
   // Timer configuration (in seconds)
   private readonly workDuration = 25 * 60; // 25 minutes
@@ -172,6 +172,13 @@ export class Timer implements OnInit, OnDestroy {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
+    console.log('Timer ngOnInit running in', typeof window !== 'undefined' ? 'browser' : 'server');
+    
+    // Clear any stale session state to start fresh
+    this.activeSessionId.set(undefined);
+    this.serverSync.set(false);
+    this.isRunning.set(false);
+    
     this.checkActiveSession();
     this.startSyncTimer();
     this.loadTasksFromStorage();
@@ -269,6 +276,8 @@ export class Timer implements OnInit, OnDestroy {
   }
 
   private loadTasksFromStorage(): void {
+    const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+    if (!isBrowser) return;
     try {
       const stored = localStorage.getItem('honquedoro-tasks');
       if (stored) {
@@ -285,6 +294,8 @@ export class Timer implements OnInit, OnDestroy {
   }
 
   private saveTasksToStorage(): void {
+    const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+    if (!isBrowser) return;
     try {
       localStorage.setItem('honquedoro-tasks', JSON.stringify(this.tasks()));
     } catch (error) {
@@ -293,9 +304,6 @@ export class Timer implements OnInit, OnDestroy {
   }
 
   async startTimer(): Promise<void> {
-    // Start local timer immediately for smooth animation
-    this.startLocalTimer();
-    
     try {
       if (this.activeSessionId()) {
         // Resume existing session
@@ -305,6 +313,8 @@ export class Timer implements OnInit, OnDestroy {
         
         if (response) {
           this.updateStateFromSession(response);
+          // Always start local timer when resuming (user explicitly clicked start)
+          this.startLocalTimer();
         }
       } else {
         // Start new session
@@ -323,11 +333,24 @@ export class Timer implements OnInit, OnDestroy {
         if (response) {
           this.activeSessionId.set(response.id);
           this.updateStateFromSession(response);
+          // Always start local timer when starting new session (user explicitly clicked start)
+          this.startLocalTimer();
         }
       }
     } catch (error) {
       console.error('Error with backend, continuing in local mode:', error);
       this.serverSync.set(false);
+      
+      // If we get a 400 error, it might mean the session state is out of sync
+      // Clear the active session ID and start fresh
+      if (error && typeof error === 'object' && 'status' in error && error.status === 400) {
+        console.log('Session state out of sync, clearing and starting fresh');
+        this.activeSessionId.set(undefined);
+        this.serverSync.set(false);
+      }
+      
+      // Fallback to local timer only if backend fails
+      this.startLocalTimer();
     }
   }
 
@@ -343,12 +366,29 @@ export class Timer implements OnInit, OnDestroy {
       ).toPromise();
       
       if (response) {
-        this.updateStateFromSession(response);
+        // Update session data but ensure timer is paused
+        this.currentTime.set(response.remainingSeconds);
+        this.mode.set(this.mapSessionTypeToMode(response.type));
+        this.serverSync.set(true);
+        
+        if (response.estimatedEndTime) {
+          this.estimatedEndTime.set(new Date(response.estimatedEndTime));
+        }
       }
       
       this.stopTimer();
+      this.isRunning.set(false); // Ensure timer is stopped
     } catch (error) {
       console.error('Error pausing timer:', error);
+      
+      // If we get a 400 error, it might mean the session state is out of sync
+      // Clear the active session ID and fall back to local mode
+      if (error && typeof error === 'object' && 'status' in error && error.status === 400) {
+        console.log('Session state out of sync during pause, clearing and using local mode');
+        this.activeSessionId.set(undefined);
+        this.serverSync.set(false);
+      }
+      
       this.pauseLocalTimer();
     }
   }
@@ -382,14 +422,14 @@ export class Timer implements OnInit, OnDestroy {
     try {
       if (this.activeSessionId()) {
         // Complete the session early on backend
-        await this.http.post(`${this.apiUrl}/${this.activeSessionId()}/complete`, {}).toPromise();
+        await this.http.post(`${this.apiUrl}/complete/${this.activeSessionId()}`, {}).toPromise();
       }
       
       this.stopTimer();
+      this.isRunning.set(false); // Ensure timer is stopped
       this.activeSessionId.set(undefined);
       this.estimatedEndTime.set(undefined);
       this.serverSync.set(false);
-      this.isRunning.set(false);
       
       // Use the same logic as completeSession
       if (this.mode() === 'work') {
@@ -428,10 +468,10 @@ export class Timer implements OnInit, OnDestroy {
       console.error('Error skipping timer:', error);
       // Fallback to local skip
       this.stopTimer();
+      this.isRunning.set(false); // Ensure timer is stopped
       this.activeSessionId.set(undefined);
       this.estimatedEndTime.set(undefined);
       this.serverSync.set(false);
-      this.isRunning.set(false);
       
       // Use the same logic as completeSession
       if (this.mode() === 'work') {
@@ -470,25 +510,25 @@ export class Timer implements OnInit, OnDestroy {
   }
 
   private async checkActiveSession(): Promise<void> {
+    console.log('checkActiveSession called in', typeof window !== 'undefined' ? 'browser' : 'server');
     try {
       const response = await this.http.get<TimerState>(`${this.apiUrl}/active`).toPromise();
-      
+      this.serverSync.set(true); // Set to true on any successful response
       if (response?.hasActiveSession && response.activeSession) {
         this.activeSessionId.set(response.activeSession.id);
         this.updateStateFromSession(response.activeSession);
-        
-        if (response.activeSession.status === 'Active') {
-          this.startLocalTimer();
-        }
+        // Don't auto-start the timer - let the user control it
       }
     } catch (error) {
+      this.serverSync.set(false);
       console.error('Error checking active session:', error);
     }
   }
 
   private updateStateFromSession(session: ActiveSession): void {
     this.currentTime.set(session.remainingSeconds);
-    this.isRunning.set(session.status === 'Active');
+    // Don't automatically set isRunning based on session status
+    // Let the user control start/pause through the UI
     this.mode.set(this.mapSessionTypeToMode(session.type));
     this.serverSync.set(true);
     
@@ -556,6 +596,7 @@ export class Timer implements OnInit, OnDestroy {
 
   private async completeSession(): Promise<void> {
     this.stopTimer();
+    this.isRunning.set(false); // Ensure timer is stopped
     
     if (this.activeSessionId()) {
       try {
@@ -622,12 +663,23 @@ export class Timer implements OnInit, OnDestroy {
     }
   }
 
-  private mapSessionTypeToMode(type: string): 'work' | 'shortBreak' | 'longBreak' {
-    switch (type.toLowerCase()) {
-      case 'work': return 'work';
-      case 'shortbreak': return 'shortBreak';
-      case 'longbreak': return 'longBreak';
-      default: return 'work';
+  private mapSessionTypeToMode(type: string | number): 'work' | 'shortBreak' | 'longBreak' {
+    // Handle both string and number types from backend
+    if (typeof type === 'number') {
+      switch (type) {
+        case 0: return 'work';
+        case 1: return 'shortBreak';
+        case 2: return 'longBreak';
+        default: return 'work';
+      }
+    } else {
+      // Handle string type
+      switch (type.toLowerCase()) {
+        case 'work': return 'work';
+        case 'shortbreak': return 'shortBreak';
+        case 'longbreak': return 'longBreak';
+        default: return 'work';
+      }
     }
   }
 
