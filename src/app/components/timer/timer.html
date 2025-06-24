@@ -126,6 +126,37 @@
     </div>
   </div>
 
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <h3>Quick Actions</h3>
+    <div class="action-buttons">
+      <button
+        (click)="changeMode('work')"
+        class="action-btn work-btn"
+        [class.active]="mode() === 'work'"
+        [disabled]="isRunning()"
+      >
+        🍅 Work (25min)
+      </button>
+      <button
+        (click)="changeMode('shortBreak')"
+        class="action-btn break-btn"
+        [class.active]="mode() === 'shortBreak'"
+        [disabled]="isRunning()"
+      >
+        ☕ Short Break (5min)
+      </button>
+      <button
+        (click)="changeMode('longBreak')"
+        class="action-btn break-btn"
+        [class.active]="mode() === 'longBreak'"
+        [disabled]="isRunning()"
+      >
+        🌴 Long Break (15min)
+      </button>
+    </div>
+  </div>
+
   <!-- Task List Section -->
   <div class="task-section">
     <div class="task-header">
@@ -297,37 +328,6 @@
         <span class="summary-label">Completed:</span>
         <span class="summary-value">{{ completedTasksCount() }}</span>
       </div>
-    </div>
-  </div>
-
-  <!-- Quick Actions -->
-  <div class="quick-actions">
-    <h3>Quick Actions</h3>
-    <div class="action-buttons">
-      <button
-        (click)="changeMode('work')"
-        class="action-btn work-btn"
-        [class.active]="mode() === 'work'"
-        [disabled]="isRunning()"
-      >
-        🍅 Work (25min)
-      </button>
-      <button
-        (click)="changeMode('shortBreak')"
-        class="action-btn break-btn"
-        [class.active]="mode() === 'shortBreak'"
-        [disabled]="isRunning()"
-      >
-        ☕ Short Break (5min)
-      </button>
-      <button
-        (click)="changeMode('longBreak')"
-        class="action-btn break-btn"
-        [class.active]="mode() === 'longBreak'"
-        [disabled]="isRunning()"
-      >
-        🌴 Long Break (15min)
-      </button>
     </div>
   </div>
 </div>
