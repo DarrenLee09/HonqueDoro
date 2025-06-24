@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, signal, computed, effect } from '@angular
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { interval, Subscription } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 
 interface ActiveSession {
   id: number;
@@ -23,9 +24,22 @@ interface TimerState {
   message?: string;
 }
 
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  completed: boolean;
+  createdAt: Date;
+  completedAt?: Date;
+  estimatedPomodoros: number;
+  completedPomodoros: number;
+  priority: 'low' | 'medium' | 'high';
+  category?: string;
+}
+
 @Component({
   selector: 'app-timer',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './timer.html',
   styleUrl: './timer.css'
 })
@@ -49,6 +63,17 @@ export class Timer implements OnInit, OnDestroy {
   activeSessionId = signal<number | undefined>(undefined);
   estimatedEndTime = signal<Date | undefined>(undefined);
   serverSync = signal(false);
+
+  // Task management signals
+  tasks = signal<Task[]>([]);
+  showTaskForm = signal(false);
+  newTaskTitle = signal('');
+  newTaskDescription = signal('');
+  newTaskEstimatedPomodoros = signal(1);
+  newTaskPriority = signal<'low' | 'medium' | 'high'>('medium');
+  newTaskCategory = signal('');
+  selectedTaskId = signal<string | undefined>(undefined);
+  showCompletedTasks = signal(false);
 
   // Computed values
   formattedTime = computed(() => {
@@ -106,16 +131,149 @@ export class Timer implements OnInit, OnDestroy {
     return this.sessionsUntilLongBreak - (this.completedSessions() % this.sessionsUntilLongBreak);
   });
 
+  // Task computed values
+  activeTasks = computed(() => {
+    return this.tasks().filter(task => !task.completed);
+  });
+
+  completedTasks = computed(() => {
+    return this.tasks().filter(task => task.completed);
+  });
+
+  visibleTasks = computed(() => {
+    return this.showCompletedTasks() ? this.tasks() : this.activeTasks();
+  });
+
+  selectedTask = computed(() => {
+    const taskId = this.selectedTaskId();
+    return taskId ? this.tasks().find(task => task.id === taskId) : undefined;
+  });
+
+  totalTasks = computed(() => this.tasks().length);
+  completedTasksCount = computed(() => this.completedTasks().length);
+  activeTasksCount = computed(() => this.activeTasks().length);
+
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
     this.checkActiveSession();
     this.startSyncTimer();
+    this.loadTasksFromStorage();
   }
 
   ngOnDestroy() {
     this.stopTimer();
     this.stopSync();
+  }
+
+  // Task management methods
+  addTask(): void {
+    if (!this.newTaskTitle().trim()) return;
+
+    const newTask: Task = {
+      id: this.generateTaskId(),
+      title: this.newTaskTitle().trim(),
+      description: this.newTaskDescription().trim() || undefined,
+      completed: false,
+      createdAt: new Date(),
+      estimatedPomodoros: this.newTaskEstimatedPomodoros(),
+      completedPomodoros: 0,
+      priority: this.newTaskPriority(),
+      category: this.newTaskCategory().trim() || undefined
+    };
+
+    this.tasks.update(tasks => [newTask, ...tasks]);
+    this.saveTasksToStorage();
+    this.resetTaskForm();
+  }
+
+  toggleTaskComplete(taskId: string): void {
+    this.tasks.update(tasks => 
+      tasks.map(task => 
+        task.id === taskId 
+          ? { 
+              ...task, 
+              completed: !task.completed,
+              completedAt: !task.completed ? new Date() : undefined
+            }
+          : task
+      )
+    );
+    this.saveTasksToStorage();
+  }
+
+  deleteTask(taskId: string): void {
+    this.tasks.update(tasks => tasks.filter(task => task.id !== taskId));
+    this.saveTasksToStorage();
+    
+    if (this.selectedTaskId() === taskId) {
+      this.selectedTaskId.set(undefined);
+    }
+  }
+
+  selectTask(taskId: string): void {
+    this.selectedTaskId.set(taskId);
+  }
+
+  updateTaskPomodoros(taskId: string, increment: boolean): void {
+    this.tasks.update(tasks => 
+      tasks.map(task => 
+        task.id === taskId 
+          ? { 
+              ...task, 
+              completedPomodoros: increment 
+                ? Math.min(task.completedPomodoros + 1, task.estimatedPomodoros)
+                : Math.max(task.completedPomodoros - 1, 0)
+            }
+          : task
+      )
+    );
+    this.saveTasksToStorage();
+  }
+
+  resetTaskForm(): void {
+    this.newTaskTitle.set('');
+    this.newTaskDescription.set('');
+    this.newTaskEstimatedPomodoros.set(1);
+    this.newTaskPriority.set('medium');
+    this.newTaskCategory.set('');
+    this.showTaskForm.set(false);
+  }
+
+  toggleTaskForm(): void {
+    this.showTaskForm.update(show => !show);
+  }
+
+  toggleCompletedTasks(): void {
+    this.showCompletedTasks.update(show => !show);
+  }
+
+  private generateTaskId(): string {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  }
+
+  private loadTasksFromStorage(): void {
+    try {
+      const stored = localStorage.getItem('honquedoro-tasks');
+      if (stored) {
+        const tasks = JSON.parse(stored).map((task: any) => ({
+          ...task,
+          createdAt: new Date(task.createdAt),
+          completedAt: task.completedAt ? new Date(task.completedAt) : undefined
+        }));
+        this.tasks.set(tasks);
+      }
+    } catch (error) {
+      console.error('Error loading tasks from storage:', error);
+    }
+  }
+
+  private saveTasksToStorage(): void {
+    try {
+      localStorage.setItem('honquedoro-tasks', JSON.stringify(this.tasks()));
+    } catch (error) {
+      console.error('Error saving tasks to storage:', error);
+    }
   }
 
   async startTimer(): Promise<void> {

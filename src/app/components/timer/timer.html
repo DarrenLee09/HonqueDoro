@@ -126,6 +126,180 @@
     </div>
   </div>
 
+  <!-- Task List Section -->
+  <div class="task-section">
+    <div class="task-header">
+      <h3>📋 Task List</h3>
+      <div class="task-controls">
+        <button 
+          (click)="toggleTaskForm()" 
+          class="task-btn add-task-btn"
+          [class.active]="showTaskForm()"
+        >
+          {{ showTaskForm() ? 'Cancel' : 'Add Task' }}
+        </button>
+        <button 
+          (click)="toggleCompletedTasks()" 
+          class="task-btn toggle-completed-btn"
+        >
+          {{ showCompletedTasks() ? 'Hide' : 'Show' }} Completed
+        </button>
+      </div>
+    </div>
+
+    <!-- Task Form -->
+    <div class="task-form" *ngIf="showTaskForm()">
+      <div class="form-group">
+        <input 
+          type="text" 
+          placeholder="Task title *" 
+          [(ngModel)]="newTaskTitle"
+          class="task-input"
+          (keyup.enter)="addTask()"
+        >
+      </div>
+      <div class="form-group">
+        <textarea 
+          placeholder="Description (optional)" 
+          [(ngModel)]="newTaskDescription"
+          class="task-textarea"
+          rows="2"
+        ></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Estimated Pomodoros:</label>
+          <select [(ngModel)]="newTaskEstimatedPomodoros" class="task-select">
+            <option [value]="1">1</option>
+            <option [value]="2">2</option>
+            <option [value]="3">3</option>
+            <option [value]="4">4</option>
+            <option [value]="5">5</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priority:</label>
+          <select [(ngModel)]="newTaskPriority" class="task-select">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Category:</label>
+          <input 
+            type="text" 
+            placeholder="Work, Personal, etc." 
+            [(ngModel)]="newTaskCategory"
+            class="task-input"
+          >
+        </div>
+      </div>
+      <div class="form-actions">
+        <button (click)="addTask()" class="task-btn save-task-btn" [disabled]="!newTaskTitle().trim()">
+          Add Task
+        </button>
+      </div>
+    </div>
+
+    <!-- Task List -->
+    <div class="task-list" *ngIf="visibleTasks().length > 0; else noTasks">
+      <div 
+        *ngFor="let task of visibleTasks()" 
+        class="task-item"
+        [class.completed]="task.completed"
+        [class.selected]="selectedTaskId() === task.id"
+        (click)="selectTask(task.id)"
+      >
+        <div class="task-content">
+          <div class="task-header-row">
+            <div class="task-checkbox">
+              <input 
+                type="checkbox" 
+                [checked]="task.completed"
+                (change)="toggleTaskComplete(task.id)"
+                (click)="$event.stopPropagation()"
+              >
+            </div>
+            <div class="task-title">{{ task.title }}</div>
+            <div class="task-priority" [class]="'priority-' + task.priority">
+              {{ task.priority }}
+            </div>
+          </div>
+          
+          <div class="task-details" *ngIf="task.description">
+            <div class="task-description">{{ task.description }}</div>
+          </div>
+          
+          <div class="task-meta">
+            <div class="task-category" *ngIf="task.category">
+              <span class="category-tag">{{ task.category }}</span>
+            </div>
+            <div class="task-pomodoros">
+              <span class="pomodoro-count">
+                {{ task.completedPomodoros }}/{{ task.estimatedPomodoros }} 🍅
+              </span>
+              <div class="pomodoro-controls">
+                <button 
+                  (click)="updateTaskPomodoros(task.id, false); $event.stopPropagation()"
+                  class="pomodoro-btn"
+                  [disabled]="task.completedPomodoros <= 0"
+                >-</button>
+                <button 
+                  (click)="updateTaskPomodoros(task.id, true); $event.stopPropagation()"
+                  class="pomodoro-btn"
+                  [disabled]="task.completedPomodoros >= task.estimatedPomodoros"
+                >+</button>
+              </div>
+            </div>
+            <div class="task-date">
+              {{ task.createdAt | date:'shortDate' }}
+            </div>
+          </div>
+        </div>
+        
+        <div class="task-actions">
+          <button 
+            (click)="deleteTask(task.id); $event.stopPropagation()"
+            class="task-action-btn delete-btn"
+            title="Delete task"
+          >
+            🗑️
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Tasks Message -->
+    <ng-template #noTasks>
+      <div class="no-tasks">
+        <div class="no-tasks-icon">📝</div>
+        <div class="no-tasks-text">
+          {{ showCompletedTasks() ? 'No completed tasks yet' : 'No tasks yet' }}
+        </div>
+        <div class="no-tasks-hint">
+          {{ showCompletedTasks() ? 'Complete some tasks to see them here' : 'Add your first task to get started' }}
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Task Summary -->
+    <div class="task-summary" *ngIf="totalTasks() > 0">
+      <div class="summary-item">
+        <span class="summary-label">Total:</span>
+        <span class="summary-value">{{ totalTasks() }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Active:</span>
+        <span class="summary-value">{{ activeTasksCount() }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Completed:</span>
+        <span class="summary-value">{{ completedTasksCount() }}</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Quick Actions -->
   <div class="quick-actions">
     <h3>Quick Actions</h3>
