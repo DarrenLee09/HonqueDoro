@@ -686,7 +686,7 @@ export class Timer implements OnInit, OnDestroy {
   private playNotificationSound(): void {
     try {
       const audio = new Audio();
-      audio.src = 'data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ4AAAA=';
+      audio.src = 'assets/sounds/honk.mp3';
       audio.play();
     } catch (error) {
       console.log('🔔 Session completed!');
