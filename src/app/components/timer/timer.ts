@@ -76,6 +76,14 @@ export class Timer implements OnInit, OnDestroy {
   selectedTaskId = signal<string | undefined>(undefined);
   showCompletedTasks = signal(false);
   completingTaskId = signal<string | undefined>(undefined); // For animation tracking
+  
+  // Task editing signals
+  editingTaskId = signal<string | undefined>(undefined);
+  editTaskTitle = signal('');
+  editTaskDescription = signal('');
+  editTaskEstimatedPomodoros = signal(1);
+  editTaskPriority = signal<'low' | 'medium' | 'high'>('medium');
+  editTaskCategory = signal('');
 
   // Computed values
   formattedTime = computed(() => {
@@ -191,6 +199,7 @@ export class Timer implements OnInit, OnDestroy {
 
   // Task management methods
   addTask(): void {
+    console.log('addTask called with title:', this.newTaskTitle());
     if (!this.newTaskTitle().trim()) return;
 
     const newTask: Task = {
@@ -205,12 +214,15 @@ export class Timer implements OnInit, OnDestroy {
       category: this.newTaskCategory().trim() || undefined
     };
 
+    console.log('Creating new task:', newTask);
     this.tasks.update(tasks => [newTask, ...tasks]);
+    console.log('Tasks after adding:', this.tasks());
     this.saveTasksToStorage();
     this.resetTaskForm();
   }
 
   toggleTaskComplete(taskId: string): void {
+    console.log('toggleTaskComplete called for taskId:', taskId);
     this.tasks.update(tasks => 
       tasks.map(task => 
         task.id === taskId 
@@ -226,6 +238,7 @@ export class Timer implements OnInit, OnDestroy {
   }
 
   deleteTask(taskId: string): void {
+    console.log('deleteTask called for taskId:', taskId);
     this.tasks.update(tasks => tasks.filter(task => task.id !== taskId));
     this.saveTasksToStorage();
     
@@ -271,6 +284,63 @@ export class Timer implements OnInit, OnDestroy {
     this.showCompletedTasks.update(show => !show);
   }
 
+  // Task editing methods
+  startEditTask(taskId: string): void {
+    console.log('startEditTask called for taskId:', taskId);
+    const task = this.tasks().find(t => t.id === taskId);
+    if (!task) {
+      console.log('Task not found:', taskId);
+      return;
+    }
+
+    console.log('Found task to edit:', task);
+    this.editingTaskId.set(taskId);
+    this.editTaskTitle.set(task.title);
+    this.editTaskDescription.set(task.description || '');
+    this.editTaskEstimatedPomodoros.set(task.estimatedPomodoros);
+    this.editTaskPriority.set(task.priority);
+    this.editTaskCategory.set(task.category || '');
+    console.log('Edit form should now be visible');
+  }
+
+  saveEditTask(): void {
+    const taskId = this.editingTaskId();
+    if (!taskId || !this.editTaskTitle().trim()) return;
+
+    this.tasks.update(tasks => 
+      tasks.map(task => 
+        task.id === taskId 
+          ? {
+              ...task,
+              title: this.editTaskTitle().trim(),
+              description: this.editTaskDescription().trim() || undefined,
+              estimatedPomodoros: this.editTaskEstimatedPomodoros(),
+              priority: this.editTaskPriority(),
+              category: this.editTaskCategory().trim() || undefined
+            }
+          : task
+      )
+    );
+
+    this.saveTasksToStorage();
+    this.cancelEditTask();
+  }
+
+  cancelEditTask(): void {
+    this.editingTaskId.set(undefined);
+    this.editTaskTitle.set('');
+    this.editTaskDescription.set('');
+    this.editTaskEstimatedPomodoros.set(1);
+    this.editTaskPriority.set('medium');
+    this.editTaskCategory.set('');
+  }
+
+  isEditingTask(taskId: string): boolean {
+    return this.editingTaskId() === taskId;
+  }
+
+
+
   private generateTaskId(): string {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
@@ -280,13 +350,17 @@ export class Timer implements OnInit, OnDestroy {
     if (!isBrowser) return;
     try {
       const stored = localStorage.getItem('honquedoro-tasks');
+      console.log('Loading tasks from storage:', stored);
       if (stored) {
         const tasks = JSON.parse(stored).map((task: any) => ({
           ...task,
           createdAt: new Date(task.createdAt),
           completedAt: task.completedAt ? new Date(task.completedAt) : undefined
         }));
+        console.log('Parsed tasks:', tasks);
         this.tasks.set(tasks);
+      } else {
+        console.log('No tasks found in storage');
       }
     } catch (error) {
       console.error('Error loading tasks from storage:', error);

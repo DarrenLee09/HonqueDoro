@@ -18,7 +18,7 @@
     <div class="stat-card primary">
       <div class="stat-icon">🍅</div>
       <div class="stat-content">
-        <div class="stat-number">{{ todayStats.completedSessions }}</div>
+        <div class="stat-number">{{ todayStats().completedSessions }}</div>
         <div class="stat-label">Sessions Today</div>
       </div>
     </div>
@@ -26,7 +26,7 @@
     <div class="stat-card">
       <div class="stat-icon">⏱️</div>
       <div class="stat-content">
-        <div class="stat-number">{{ todayStats.totalWorkTime }}m</div>
+        <div class="stat-number">{{ todayStats().totalWorkTime }}m</div>
         <div class="stat-label">Focus Time</div>
       </div>
     </div>
@@ -34,7 +34,7 @@
     <div class="stat-card">
       <div class="stat-icon">🔥</div>
       <div class="stat-content">
-        <div class="stat-number">{{ todayStats.currentStreak }}</div>
+        <div class="stat-number">{{ todayStats().currentStreak }}</div>
         <div class="stat-label">Current Streak</div>
       </div>
     </div>
@@ -42,7 +42,7 @@
     <div class="stat-card">
       <div class="stat-icon">🏆</div>
       <div class="stat-content">
-        <div class="stat-number">{{ todayStats.bestStreak }}</div>
+        <div class="stat-number">{{ todayStats().bestStreak }}</div>
         <div class="stat-label">Best Streak</div>
       </div>
     </div>
@@ -53,19 +53,19 @@
     <h2>📈 Weekly Progress</h2>
     <div class="progress-card">
       <div class="progress-header">
-        <span>{{ weeklyGoal.completed }} / {{ weeklyGoal.target }} sessions</span>
-        <span class="progress-percentage">{{ weeklyProgressPercentage | number:'1.0-0' }}%</span>
+        <span>{{ weeklyGoal().completed }} / {{ weeklyGoal().target }} sessions</span>
+        <span class="progress-percentage">{{ weeklyProgressPercentage() | number:'1.0-0' }}%</span>
       </div>
       <div class="progress-bar">
         <div 
           class="progress-fill" 
-          [style.width.%]="weeklyProgressPercentage"
+          [style.width.%]="weeklyProgressPercentage()"
         ></div>
       </div>
       <div class="progress-message">
-        <span *ngIf="weeklyProgressPercentage >= 100" class="success">🎉 Goal achieved! Amazing work!</span>
-        <span *ngIf="weeklyProgressPercentage >= 80 && weeklyProgressPercentage < 100" class="almost">🎯 Almost there! Keep going!</span>
-        <span *ngIf="weeklyProgressPercentage < 80" class="keep-going">💪 You've got this! Stay consistent!</span>
+        <span *ngIf="weeklyProgressPercentage() >= 100" class="success">🎉 Goal achieved! Amazing work!</span>
+        <span *ngIf="weeklyProgressPercentage() >= 80 && weeklyProgressPercentage() < 100" class="almost">🎯 Almost there! Keep going!</span>
+        <span *ngIf="weeklyProgressPercentage() < 80" class="keep-going">💪 You've got this! Stay consistent!</span>
       </div>
     </div>
   </div>
@@ -75,7 +75,7 @@
     <h2>📝 Recent Sessions</h2>
     <div class="activity-list">
       <div 
-        *ngFor="let session of recentSessions" 
+        *ngFor="let session of recentSessions()" 
         class="activity-item"
         [class.work-session]="session.type === 'Work'"
         [class.break-session]="session.type === 'Break'"
