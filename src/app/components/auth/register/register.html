@@ -1,0 +1,46 @@
+<div class="login-container">
+  <div class="login">
+    <h1>Create an Account</h1>
+    <form #loginForm="ngForm" (ngSubmit)="register()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <div class="input-group">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-input"
+              [(ngModel)]="email"
+              required
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-group">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-input"
+              [(ngModel)]="password"
+              required
+            />
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="login-btn">Register</button>
+      </div>
+      <div class="form-footer">
+        <p>
+          Don't have an account? <a routerLink="/login">Create an account</a>
+        </p>
+        <p>
+          Forgot your password? <a routerLink="/reset-password">Reset it</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>
