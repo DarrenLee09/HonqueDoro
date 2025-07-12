@@ -1,13 +1,19 @@
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 4rem;
+  height: 100vh;
+}
+
 .timer-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2rem;
-  max-width: 800px;
   margin: 0 auto;
-  padding: 1rem;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  flex-basis: 50%;
 }
 
 .timer-card {
@@ -18,10 +24,8 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   text-align: center;
   width: 100%;
-  max-width: 500px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  min-height: 600px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -34,7 +38,7 @@
 
 /* Enhanced Timer Header */
 .timer-header {
-  margin-bottom: 2rem;
+  margin-bottom: 0rem;
 }
 
 .mode-title {
@@ -90,7 +94,6 @@
 
 /* Enhanced Timer Display */
 .timer-display {
-  margin: 2rem 0;
   position: relative;
   display: flex;
   justify-content: center;
@@ -254,7 +257,7 @@
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin: 2rem 0;
+  margin: 0rem 0;
   flex-wrap: wrap;
 }
 
@@ -387,9 +390,8 @@
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   border-radius: 15px;
-  padding: 1.5rem;
+  padding: 2rem;
   width: 100%;
-  max-width: 500px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.3);
   min-height: 150px;
@@ -585,14 +587,13 @@ svg circle {
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 32px;
-  margin: 24px 0;
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 500px;
-  min-height: 700px;
+  flex-basis: 50%;
   display: flex;
   flex-direction: column;
+  height: 730px;
 }
 
 .task-header {
@@ -796,7 +797,6 @@ svg circle {
 
 /* Task List */
 .task-list {
-  max-height: 500px;
   overflow-y: auto;
   margin-bottom: 24px;
 }
@@ -1066,41 +1066,41 @@ svg circle {
     padding: 24px;
     margin: 20px 0;
   }
-  
+
   .task-header {
     flex-direction: column;
     gap: 20px;
     align-items: stretch;
   }
-  
+
   .task-controls {
     justify-content: center;
   }
-  
+
   .task-form {
     padding: 24px;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .task-meta {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .task-item {
     flex-direction: column;
     padding: 16px;
   }
-  
+
   .task-content {
     margin-right: 0;
     margin-bottom: 16px;
   }
-  
+
   .task-actions {
     align-self: flex-end;
   }
@@ -1108,23 +1108,23 @@ svg circle {
 
 /* Task completion animations */
 @keyframes taskComplete {
-  0% { 
+  0% {
     transform: scale(1) rotate(0deg);
     background: rgba(255, 255, 255, 0.1);
   }
-  25% { 
+  25% {
     transform: scale(1.02) rotate(0.5deg);
     background: rgba(76, 175, 80, 0.1);
   }
-  50% { 
+  50% {
     transform: scale(1.05) rotate(-0.5deg);
     background: rgba(76, 175, 80, 0.2);
   }
-  75% { 
+  75% {
     transform: scale(1.02) rotate(0.5deg);
     background: rgba(76, 175, 80, 0.15);
   }
-  100% { 
+  100% {
     transform: scale(1) rotate(0deg);
     background: rgba(76, 175, 80, 0.1);
   }
@@ -1137,23 +1137,23 @@ svg circle {
 }
 
 @keyframes taskAutoComplete {
-  0% { 
+  0% {
     transform: scale(1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
-  25% { 
+  25% {
     transform: scale(1.05);
     box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
   }
-  50% { 
+  50% {
     transform: scale(1.1);
     box-shadow: 0 12px 35px rgba(76, 175, 80, 0.4);
   }
-  75% { 
+  75% {
     transform: scale(1.05);
     box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
   }
-  100% { 
+  100% {
     transform: scale(1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
@@ -1304,17 +1304,17 @@ svg circle {
   .task-edit-form {
     padding: 0.75rem;
   }
-  
+
   .task-edit-form .form-row {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .task-edit-form .form-actions {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .task-edit-form .task-btn {
     width: 100%;
   }
