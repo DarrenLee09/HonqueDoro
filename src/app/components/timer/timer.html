@@ -252,6 +252,7 @@
         [class.completed]="task.completed"
         [class.selected]="selectedTaskId() === task.id"
         [class.completing]="completingTaskId() === task.id"
+        [class.editing]="isEditingTask(task.id)"
         (click)="selectTask(task.id)"
       >
         <div class="task-content">
@@ -312,7 +313,73 @@
           </div>
         </div>
         
+        <!-- Task Edit Form -->
+        <div class="task-edit-form" *ngIf="isEditingTask(task.id)">
+          <div class="form-group">
+            <input 
+              type="text" 
+              placeholder="Task title *" 
+              [(ngModel)]="editTaskTitle"
+              class="task-input"
+              (keyup.enter)="saveEditTask()"
+            >
+          </div>
+          <div class="form-group">
+            <textarea 
+              placeholder="Description (optional)" 
+              [(ngModel)]="editTaskDescription"
+              class="task-textarea"
+              rows="2"
+            ></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Estimated Pomodoros:</label>
+              <select [(ngModel)]="editTaskEstimatedPomodoros" class="task-select">
+                <option [value]="1">1</option>
+                <option [value]="2">2</option>
+                <option [value]="3">3</option>
+                <option [value]="4">4</option>
+                <option [value]="5">5</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Priority:</label>
+              <select [(ngModel)]="editTaskPriority" class="task-select">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Category:</label>
+              <input 
+                type="text" 
+                placeholder="Work, Personal, etc." 
+                [(ngModel)]="editTaskCategory"
+                class="task-input"
+              >
+            </div>
+          </div>
+          <div class="form-actions">
+            <button (click)="saveEditTask()" class="task-btn save-task-btn" [disabled]="!editTaskTitle().trim()">
+              Save
+            </button>
+            <button (click)="cancelEditTask()" class="task-btn cancel-task-btn">
+              Cancel
+            </button>
+          </div>
+        </div>
+        
         <div class="task-actions">
+          <button 
+            (click)="startEditTask(task.id); $event.stopPropagation()"
+            class="task-action-btn edit-btn"
+            title="Edit task"
+            *ngIf="!isEditingTask(task.id)"
+          >
+            ✏️
+          </button>
           <button 
             (click)="deleteTask(task.id); $event.stopPropagation()"
             class="task-action-btn delete-btn"
