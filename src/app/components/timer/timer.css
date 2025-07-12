@@ -7,7 +7,6 @@
   margin: 0 auto;
   padding: 1rem;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .timer-card {
@@ -1066,41 +1065,41 @@ svg circle {
     padding: 24px;
     margin: 20px 0;
   }
-  
+
   .task-header {
     flex-direction: column;
     gap: 20px;
     align-items: stretch;
   }
-  
+
   .task-controls {
     justify-content: center;
   }
-  
+
   .task-form {
     padding: 24px;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .task-meta {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .task-item {
     flex-direction: column;
     padding: 16px;
   }
-  
+
   .task-content {
     margin-right: 0;
     margin-bottom: 16px;
   }
-  
+
   .task-actions {
     align-self: flex-end;
   }
@@ -1108,23 +1107,23 @@ svg circle {
 
 /* Task completion animations */
 @keyframes taskComplete {
-  0% { 
+  0% {
     transform: scale(1) rotate(0deg);
     background: rgba(255, 255, 255, 0.1);
   }
-  25% { 
+  25% {
     transform: scale(1.02) rotate(0.5deg);
     background: rgba(76, 175, 80, 0.1);
   }
-  50% { 
+  50% {
     transform: scale(1.05) rotate(-0.5deg);
     background: rgba(76, 175, 80, 0.2);
   }
-  75% { 
+  75% {
     transform: scale(1.02) rotate(0.5deg);
     background: rgba(76, 175, 80, 0.15);
   }
-  100% { 
+  100% {
     transform: scale(1) rotate(0deg);
     background: rgba(76, 175, 80, 0.1);
   }
@@ -1137,23 +1136,23 @@ svg circle {
 }
 
 @keyframes taskAutoComplete {
-  0% { 
+  0% {
     transform: scale(1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
-  25% { 
+  25% {
     transform: scale(1.05);
     box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
   }
-  50% { 
+  50% {
     transform: scale(1.1);
     box-shadow: 0 12px 35px rgba(76, 175, 80, 0.4);
   }
-  75% { 
+  75% {
     transform: scale(1.05);
     box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
   }
-  100% { 
+  100% {
     transform: scale(1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
@@ -1304,17 +1303,17 @@ svg circle {
   .task-edit-form {
     padding: 0.75rem;
   }
-  
+
   .task-edit-form .form-row {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .task-edit-form .form-actions {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .task-edit-form .task-btn {
     width: 100%;
   }
