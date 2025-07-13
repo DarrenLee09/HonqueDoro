@@ -40,4 +40,6 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
-/src/enviroments
+/src/environments
+# Ignore local environment files with secrets
+src/environments/environment.ts

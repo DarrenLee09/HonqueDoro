@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, Router } from "@angular/router";
 import { FormsModule } from '@angular/forms';
 import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
@@ -16,9 +16,11 @@ export class Login {
   email: string = '';
   password: string = '';
 
-  constructor(private auth: Auth, private router: Router) {}
+  auth = inject(Auth, { optional: true });
+  constructor(private router: Router) {}
 
   async login() {
+    if (!this.auth) return;
     const userCredential = await signInWithEmailAndPassword(this.auth, this.email, this.password);
     await this.router.navigate(['/dashboard']);
   }

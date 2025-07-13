@@ -2,6 +2,14 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
+## Firebase Setup
+
+This project uses Firebase for authentication. To set up Firebase:
+
+1. Copy `src/environments/environment.template.ts` to `src/environments/environment.ts`
+2. Fill in your Firebase configuration values in `environment.ts`
+3. Never commit `environment.ts` to version control (it's already in `.gitignore`)
+
 ## Development server
 
 To start a local development server, run:

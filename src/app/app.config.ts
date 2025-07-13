@@ -10,7 +10,10 @@ import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
-import { firebaseConfig } from '../enviroments/environment';
+import { firebaseConfig } from '../environments/environment';
+
+// Only initialize Firebase if we have a valid API key
+const hasValidFirebaseConfig = firebaseConfig.apiKey && firebaseConfig.apiKey !== '';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,7 +22,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withInterceptorsFromDi()),
-    provideFirebaseApp(() => initializeApp(firebaseConfig)),
-    provideAuth(() => getAuth())
+    // Only provide Firebase if we have valid config
+    ...(hasValidFirebaseConfig ? [
+      provideFirebaseApp(() => initializeApp(firebaseConfig)),
+      provideAuth(() => getAuth())
+    ] : [])
   ]
 };
