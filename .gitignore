@@ -43,3 +43,4 @@ Thumbs.db
 /src/environments
 # Ignore local environment files with secrets
 src/environments/environment.ts
+/src/environments
