@@ -257,7 +257,7 @@
         [class.editing]="isEditingTask(task.id)"
         (click)="selectTask(task.id)"
       >
-        <div class="task-content">
+        <div class="task-content" *ngIf="!isEditingTask(task.id)">
           <div class="task-header-row">
             <div class="task-checkbox">
               <input

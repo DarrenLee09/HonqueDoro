@@ -36,15 +36,6 @@ export class Register implements OnInit {
     }
   }
 
-  ngOnInit() {
-    // Check if user is already logged in
-    onAuthStateChanged(this.auth, (user) => {
-      if (user) {
-        this.router.navigate(['/dashboard']);
-      }
-    });
-  }
-
   async register() {
     if (!this.auth) return;
     await createUserWithEmailAndPassword(this.auth, this.email, this.password);
