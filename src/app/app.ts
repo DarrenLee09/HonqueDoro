@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 
@@ -12,18 +12,22 @@ export class App implements OnInit {
   protected title = 'PomodoroFlow';
   isLoggedIn: boolean = false;
 
-  constructor(private auth: Auth, private router: Router) {}
+  auth = inject(Auth, { optional: true });
+  constructor(private router: Router) {}
 
   ngOnInit() {
-    onAuthStateChanged(this.auth, (user) => {
-      this.isLoggedIn = !!user;
-      if (user) {
-        this.router.navigate(['/dashboard']);
-      }
-    });
+    if (this.auth) {
+      onAuthStateChanged(this.auth, (user) => {
+        this.isLoggedIn = !!user;
+        if (user) {
+          this.router.navigate(['/dashboard']);
+        }
+      });
+    }
   }
 
   async logout() {
+    if (!this.auth) return;
     try {
       await this.auth.signOut();
       this.router.navigate(['/login']);

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from "@angular/router";
 import { FormsModule } from '@angular/forms';
 import {
@@ -22,18 +22,22 @@ export class Register implements OnInit {
   email: string = '';
   password: string = '';
 
-  constructor(private auth: Auth, private router: Router) {}
+  auth = inject(Auth, { optional: true });
+  constructor(private router: Router) {}
 
   ngOnInit() {
-    // Check if user is already logged in
-    onAuthStateChanged(this.auth, (user) => {
-      if (user) {
-        this.router.navigate(['/dashboard']);
-      }
-    });
+    if (this.auth) {
+      // Check if user is already logged in
+      onAuthStateChanged(this.auth, (user) => {
+        if (user) {
+          this.router.navigate(['/dashboard']);
+        }
+      });
+    }
   }
 
   async register() {
+    if (!this.auth) return;
     await createUserWithEmailAndPassword(this.auth, this.email, this.password);
     await signInWithEmailAndPassword(this.auth, this.email, this.password);
     await this.router.navigate(['/dashboard']);
