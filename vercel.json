@@ -1,10 +1,5 @@
 {
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "framework": "angular",
-  "functions": {
-    "src/server.ts": {
-      "maxDuration": 30
-    }
-  }
+  "framework": "angular"
 } 
