@@ -9,7 +9,7 @@ import { Auth, onAuthStateChanged } from '@angular/fire/auth';
   styleUrl: './app.css'
 })
 export class App implements OnInit {
-  protected title = 'PomodoroFlow';
+  protected title = 'HonqueDoro';
   isLoggedIn: boolean = false;
 
   auth = inject(Auth, { optional: true });
