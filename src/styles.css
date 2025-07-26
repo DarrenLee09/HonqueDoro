@@ -1,1 +1,34 @@
 /* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global overflow prevention */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  scrollbar-gutter: stable;
+}
+
+body {
+  position: relative;
+}
+
+/* Text overflow prevention */
+* {
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Prevent any element from exceeding viewport width */
+* {
+  max-width: 100vw;
+}

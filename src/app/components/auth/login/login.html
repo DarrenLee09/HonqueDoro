@@ -2,6 +2,11 @@
   <div class="login">
     <h1>🍅 PomodoroFlow</h1>
     <form #loginForm="ngForm" (ngSubmit)="login()">
+      <!-- Error Message -->
+      <div class="error-message" *ngIf="errorMessage()">
+        {{ errorMessage() }}
+      </div>
+      
       <div class="form-grid">
         <div class="form-group">
           <label for="email">Email</label>
@@ -31,7 +36,15 @@
         </div>
       </div>
       <div class="form-actions">
-        <button type="submit" class="login-btn">Login</button>
+        <button 
+          type="submit" 
+          class="login-btn" 
+          [disabled]="isLoading()"
+          [class.loading]="isLoading()"
+        >
+          <span *ngIf="!isLoading()">Login</span>
+          <span *ngIf="isLoading()">Logging in...</span>
+        </button>
       </div>
       <div class="form-footer">
         <p>

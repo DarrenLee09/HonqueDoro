@@ -1,71 +1,74 @@
-<div class="flex-container">
-  <div class="timer-container">
-    <div class="timer-card">
+<div class="flex flex-col lg:flex-row justify-center gap-6 h-full p-4 max-w-6xl mx-auto overflow-hidden">
+  <div class="flex flex-col items-center gap-4 flex-1 lg:max-w-lg w-full min-w-0">
+    <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-2xl hover:shadow-3xl transition-all duration-300 w-full border border-white/20 min-w-0">
       <!-- Timer Header -->
-      <div class="timer-header">
-        <h2 class="mode-title">
-          <span class="mode-icon">{{ modeIcon() }}</span>
+      <div class="text-center mb-4">
+        <h2 class="text-3xl font-bold text-gray-700 mb-2 flex items-center justify-center gap-2">
+          <span class="text-4xl animate-bounce drop-shadow-sm">{{ modeIcon() }}</span>
           {{ modeDisplayName() }}
         </h2>
-        <div class="session-info">
+        <div class="text-gray-600 font-medium mb-2">
           <span>Session {{ completedToday() + 1 }} • {{ completedToday() }} completed</span>
         </div>
-        <div class="status-info">
-          <span class="status-badge">{{ statusIndicator() }}</span>
+        <div class="mb-2" *ngIf="pinnedTask()">
+          <div class="bg-purple-100 border-2 border-purple-300 rounded-lg p-3">
+            <div class="text-xs text-purple-600 font-semibold mb-1">📌 PINNED FOR WORK SESSION</div>
+            <div class="text-sm font-medium text-purple-800">{{ pinnedTask()?.title }}</div>
+          </div>
+        </div>
+        <div>
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-primary-100 text-primary-700 border border-primary-200 animate-pulse">{{ statusIndicator() }}</span>
         </div>
       </div>
 
       <!-- Timer Display -->
-      <div class="timer-display">
-        <div class="time-circle">
-          <svg class="progress-ring" width="300" height="300" viewBox="0 0 300 300">
+      <div class="flex justify-center items-center mb-4">
+        <div class="relative">
+          <svg class="-rotate-90 drop-shadow-2xl w-56 h-56 sm:w-64 sm:h-64 lg:w-72 lg:h-72 max-w-full" width="300" height="300" viewBox="0 0 300 300">
             <!-- Background ring -->
             <circle
-              class="progress-ring-track"
               cx="150"
               cy="150"
               r="135"
               fill="transparent"
               stroke="rgba(255, 255, 255, 0.3)"
-              stroke-width="12"
+              stroke-width="8"
             />
             <!-- Progress ring -->
             <circle
-              class="progress-ring-progress"
+              class="transition-all duration-500 ease-out"
               cx="150"
               cy="150"
               r="135"
               fill="transparent"
-              stroke="#667eea"
-              stroke-width="12"
+              [attr.stroke]="currentTime() === 0 ? '#10b981' : currentTime() <= 60 && currentTime() > 0 ? '#ef4444' : currentTime() <= 300 && currentTime() > 60 ? '#f59e0b' : '#667eea'"
+              stroke-width="8"
               stroke-linecap="round"
               stroke-dasharray="847.8"
               [style.stroke-dashoffset]="847.8 - (847.8 * progressPercentage() / 100)"
-              [class.completed]="currentTime() === 0"
-              [class.warning]="currentTime() <= 300 && currentTime() > 60"
-              [class.urgent]="currentTime() <= 60 && currentTime() > 0"
+              [class]="'drop-shadow-lg ' + (currentTime() <= 60 && currentTime() > 0 ? 'animate-pulse' : '')"
             />
           </svg>
-          <div class="time-display-content">
-            <div class="time-text">{{ formattedTime() }}</div>
-            <div class="eta-display" *ngIf="estimatedEndTime() && isRunning()">
-              <div class="eta-label">ETA</div>
-              <div class="eta-time">{{ formattedETA() }}</div>
+          <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-40 sm:w-48 lg:w-56 max-w-full">
+            <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-700 font-mono drop-shadow-sm mb-2 leading-none">{{ formattedTime() }}</div>
+            <div class="bg-primary-100 rounded-lg p-2 mb-2 border border-primary-200 shadow-sm" *ngIf="estimatedEndTime() && isRunning()">
+              <div class="text-xs text-gray-600 font-medium uppercase tracking-wider mb-1">ETA</div>
+              <div class="text-sm font-semibold text-primary-700 font-mono">{{ formattedETA() }}</div>
             </div>
-            <div class="progress-text">{{ progressPercentage() | number:'1.1-1' }}%</div>
+            <div class="text-gray-500 font-medium bg-white/80 px-2 py-1 rounded-full inline-block text-xs shadow-sm">{{ progressPercentage() | number:'1.1-1' }}%</div>
           </div>
         </div>
       </div>
 
       <!-- Timer Controls -->
-      <div class="timer-controls">
+      <div class="flex justify-center gap-3 mb-4 flex-wrap">
         <button
           *ngIf="!isRunning()"
           (click)="startTimer()"
-          class="control-btn start-btn"
+          class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 min-w-28 justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm"
           [disabled]="currentTime() === 0"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M8 5v14l11-7z"/>
           </svg>
           {{ activeSessionId() ? 'Resume' : 'Start' }}
@@ -74,9 +77,9 @@
         <button
           *ngIf="isRunning()"
           (click)="pauseTimer()"
-          class="control-btn pause-btn"
+          class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 min-w-28 justify-center text-sm"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
           </svg>
           Pause
@@ -84,10 +87,10 @@
 
         <button
           (click)="resetTimer()"
-          class="control-btn reset-btn"
+          class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 min-w-28 justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm"
           [disabled]="currentTime() === getCurrentModeDuration() && !isRunning() && !activeSessionId()"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/>
           </svg>
           {{ activeSessionId() ? 'Cancel' : 'Reset' }}
@@ -95,10 +98,10 @@
 
         <button
           (click)="skipTimer()"
-          class="control-btn skip-btn"
+          class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white font-semibold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 min-w-28 justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm"
           [disabled]="!isRunning() && !activeSessionId()"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
           </svg>
           Skip
@@ -106,18 +109,18 @@
       </div>
 
       <!-- Time Information -->
-      <div class="time-info" *ngIf="isRunning() || activeSessionId()">
-        <div class="time-item">
-          <div class="time-label">Elapsed</div>
-          <div class="time-value">{{ formatElapsedTime() }}</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 bg-primary-50 rounded-xl border border-primary-100 backdrop-blur-sm mb-4" *ngIf="isRunning() || activeSessionId()">
+        <div class="text-center p-3 bg-white/50 rounded-lg hover:-translate-y-0.5 transition-transform duration-200 shadow-sm">
+          <div class="text-xs text-gray-600 font-medium uppercase tracking-wider mb-1">Elapsed</div>
+          <div class="text-sm font-semibold text-gray-700 font-mono">{{ formatElapsedTime() }}</div>
         </div>
-        <div class="time-item" *ngIf="estimatedEndTime()">
-          <div class="time-label">Finish Time</div>
-          <div class="time-value">{{ formattedETA() }}</div>
+        <div class="text-center p-3 bg-white/50 rounded-lg hover:-translate-y-0.5 transition-transform duration-200 shadow-sm" *ngIf="estimatedEndTime()">
+          <div class="text-xs text-gray-600 font-medium uppercase tracking-wider mb-1">Finish Time</div>
+          <div class="text-sm font-semibold text-gray-700 font-mono">{{ formattedETA() }}</div>
         </div>
-        <div class="time-item">
-          <div class="time-label">Remaining</div>
-          <div class="time-value">{{ formattedTime() }}</div>
+        <div class="text-center p-3 bg-white/50 rounded-lg hover:-translate-y-0.5 transition-transform duration-200 shadow-sm">
+          <div class="text-xs text-gray-600 font-medium uppercase tracking-wider mb-1">Remaining</div>
+          <div class="text-sm font-semibold text-gray-700 font-mono">{{ formattedTime() }}</div>
         </div>
       </div>
 
@@ -139,29 +142,29 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="quick-actions">
-      <h3>Quick Actions</h3>
-      <div class="action-buttons">
+    <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-4 w-full shadow-2xl border border-white/20">
+      <h3 class="text-lg font-semibold text-gray-700 mb-3 text-center">Quick Actions</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
         <button
           (click)="changeMode('work')"
-          class="action-btn work-btn"
-          [class.active]="mode() === 'work'"
+          class="p-3 border-2 rounded-xl bg-white/80 text-gray-600 font-medium hover:border-primary-500 hover:bg-primary-50 hover:text-gray-800 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm min-h-12"
+          [class]="mode() === 'work' ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white border-primary-500 shadow-lg shadow-primary-400/30 -translate-y-1' : 'border-primary-200'"
           [disabled]="isRunning()"
         >
           🍅 Work (25min)
         </button>
         <button
           (click)="changeMode('shortBreak')"
-          class="action-btn break-btn"
-          [class.active]="mode() === 'shortBreak'"
+          class="p-3 border-2 rounded-xl bg-white/80 text-gray-600 font-medium hover:border-primary-500 hover:bg-primary-50 hover:text-gray-800 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm min-h-12"
+          [class]="mode() === 'shortBreak' ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white border-primary-500 shadow-lg shadow-primary-400/30 -translate-y-1' : 'border-primary-200'"
           [disabled]="isRunning()"
         >
           ☕ Short Break (5min)
         </button>
         <button
           (click)="changeMode('longBreak')"
-          class="action-btn break-btn"
-          [class.active]="mode() === 'longBreak'"
+          class="p-3 border-2 rounded-xl bg-white/80 text-gray-600 font-medium hover:border-primary-500 hover:bg-primary-50 hover:text-gray-800 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm min-h-12"
+          [class]="mode() === 'longBreak' ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white border-primary-500 shadow-lg shadow-primary-400/30 -translate-y-1' : 'border-primary-200'"
           [disabled]="isRunning()"
         >
           🌴 Long Break (15min)
@@ -171,20 +174,20 @@
   </div>
 
   <!-- Task List Section -->
-  <div class="task-section">
-    <div class="task-header">
-      <h3>📋 Task List</h3>
-      <div class="task-controls">
+  <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-2xl w-full lg:max-w-lg flex flex-col min-w-0" style="height: calc(100vh - 16rem); max-height: calc(100vh - 16rem); margin-bottom: 2rem;">
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 gap-3">
+      <h3 class="text-lg font-semibold text-gray-700 flex-shrink-0">📋 Task List</h3>
+      <div class="flex gap-3 flex-shrink-0">
         <button
           (click)="toggleTaskForm()"
-          class="task-btn add-task-btn"
-          [class.active]="showTaskForm()"
+          class="px-5 py-2 rounded-xl font-medium text-sm border-2 transition-all duration-300 hover:-translate-y-0.5"
+          [class]="showTaskForm() ? 'bg-primary-500 border-primary-500 text-white shadow-lg' : 'bg-primary-100 border-primary-200 text-primary-700 hover:bg-primary-200'"
         >
           {{ showTaskForm() ? 'Cancel' : 'Add Task' }}
         </button>
         <button
           (click)="toggleCompletedTasks()"
-          class="task-btn toggle-completed-btn"
+          class="bg-gray-100 border-2 border-gray-200 text-gray-700 px-5 py-2 rounded-xl hover:bg-gray-200 hover:-translate-y-0.5 transition-all duration-300 font-medium text-sm"
         >
           {{ showCompletedTasks() ? 'Hide' : 'Show' }} Completed
         </button>
@@ -192,233 +195,255 @@
     </div>
 
     <!-- Task Form -->
-    <div class="task-form" *ngIf="showTaskForm()">
-      <div class="form-group">
+    <div class="bg-primary-50 rounded-2xl p-6 mb-4 border border-primary-200 shadow-sm" *ngIf="showTaskForm()">
+      <div class="space-y-4">
         <input
           type="text"
           placeholder="Task title *"
           [(ngModel)]="newTaskTitle"
-          class="task-input"
-          (keyup.enter)="addTask()"
+          class="w-full bg-white border-2 border-primary-200 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-all duration-300"
+          (keyup.enter)="newTaskTitle().trim() && addTask()"
         >
-      </div>
-      <div class="form-group">
-          <textarea
-            placeholder="Description (optional)"
-            [(ngModel)]="newTaskDescription"
-            class="task-textarea"
-            rows="2"
-          ></textarea>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Estimated Pomodoros:</label>
-          <select [(ngModel)]="newTaskEstimatedPomodoros" class="task-select">
-            <option [value]="1">1</option>
-            <option [value]="2">2</option>
-            <option [value]="3">3</option>
-            <option [value]="4">4</option>
-            <option [value]="5">5</option>
-          </select>
+        <textarea
+          placeholder="Description (optional)"
+          [(ngModel)]="newTaskDescription"
+          class="w-full bg-white border-2 border-primary-200 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-all duration-300 resize-vertical min-h-20"
+          rows="2"
+        ></textarea>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="space-y-2">
+            <label class="text-gray-700 font-medium text-sm">Estimated Pomodoros:</label>
+            <select [(ngModel)]="newTaskEstimatedPomodoros" class="w-full bg-white border-2 border-primary-200 rounded-xl px-4 py-3 text-gray-700 font-medium hover:border-primary-400 focus:border-primary-500 focus:outline-none transition-all duration-300 cursor-pointer">
+              <option [value]="1">1</option>
+              <option [value]="2">2</option>
+              <option [value]="3">3</option>
+              <option [value]="4">4</option>
+              <option [value]="5">5</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label class="text-gray-700 font-medium text-sm">Priority:</label>
+            <select [(ngModel)]="newTaskPriority" class="w-full bg-white border-2 border-primary-200 rounded-xl px-4 py-3 text-gray-700 font-medium hover:border-primary-400 focus:border-primary-500 focus:outline-none transition-all duration-300 cursor-pointer">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label class="text-gray-700 font-medium text-sm">Category:</label>
+            <input
+              type="text"
+              placeholder="Work, Personal, etc."
+              [(ngModel)]="newTaskCategory"
+              class="w-full bg-white border-2 border-primary-200 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-all duration-300"
+            >
+          </div>
         </div>
-        <div class="form-group">
-          <label>Priority:</label>
-          <select [(ngModel)]="newTaskPriority" class="task-select">
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
+        <div class="flex justify-end pt-2">
+          <button (click)="addTask()" class="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-2 rounded-xl font-medium hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg" [disabled]="!newTaskTitle().trim()">
+            Add Task
+          </button>
         </div>
-        <div class="form-group">
-          <label>Category:</label>
-          <input
-            type="text"
-            placeholder="Work, Personal, etc."
-            [(ngModel)]="newTaskCategory"
-            class="task-input"
-          >
-        </div>
-      </div>
-      <div class="form-actions">
-        <button (click)="addTask()" class="task-btn save-task-btn" [disabled]="!newTaskTitle().trim()">
-          Add Task
-        </button>
       </div>
     </div>
 
     <!-- Task List -->
-    <div class="task-list" *ngIf="visibleTasks().length > 0; else noTasks">
+    <div class="space-y-2 overflow-y-auto flex-1 min-h-0" *ngIf="visibleTasks().length > 0; else noTasks">
       <div
         *ngFor="let task of visibleTasks()"
-        class="task-item"
-        [class.completed]="task.completed"
-        [class.selected]="selectedTaskId() === task.id"
-        [class.completing]="completingTaskId() === task.id"
-        [class.editing]="isEditingTask(task.id)"
-        (click)="selectTask(task.id)"
+        class="bg-white rounded-xl p-3 shadow-sm border border-gray-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+        [class]="{
+          'opacity-60 bg-green-50 border-green-200': task.completed,
+          'border-primary-500 bg-primary-100 shadow-lg ring-2 ring-primary-200': task.pinned && !task.completed,
+          'border-primary-300 bg-primary-50 shadow-md': selectedTaskId() === task.id && !task.pinned,
+          'animate-pulse': completingTaskId() === task.id
+        }"
+        (click)="!isEditingTask(task.id) && togglePinTask(task.id)"
       >
-        <div class="task-content">
-          <div class="task-header-row">
-            <div class="task-checkbox">
+        <div class="space-y-1">
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0">
               <input
                 type="checkbox"
                 [checked]="task.completed"
                 (change)="toggleTaskComplete(task.id)"
                 (click)="$event.stopPropagation()"
+                class="w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2"
               >
             </div>
-            <div class="task-title">
+            <div class="flex-1 font-medium text-gray-800" [class.line-through]="task.completed" [class.text-gray-500]="task.completed">
               {{ task.title }}
-              <span *ngIf="selectedTaskId() === task.id && !task.completed" class="selected-indicator">🎯</span>
+              <span *ngIf="selectedTaskId() === task.id && !task.completed" class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">Active Session</span>
             </div>
-            <div class="task-priority" [class]="'priority-' + task.priority">
-              {{ task.priority }}
+            <div class="flex items-center px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide shadow-lg border-2 cursor-pointer"
+                 [class]="{
+                   'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-red-300 border-red-300': task.priority === 'high',
+                   'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-amber-300 border-amber-300': task.priority === 'medium', 
+                   'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-emerald-300 border-emerald-300': task.priority === 'low',
+                   'ring-2 ring-offset-2 ring-purple-400 scale-105': task.pinned
+                 }"
+                 (click)="!isEditingTask(task.id) && togglePinTask(task.id); $event.stopPropagation()">
+              <span *ngIf="task.priority === 'high'" class="flex items-center gap-1">
+                <span class="text-sm">🔥</span>
+                <span>{{ task.priority }}</span>
+                <span class="text-sm" *ngIf="task.pinned">📌</span>
+              </span>
+              <span *ngIf="task.priority === 'medium'" class="flex items-center gap-1">
+                <span class="text-sm">⚡</span>
+                <span>{{ task.priority }}</span>
+                <span class="text-sm" *ngIf="task.pinned">📌</span>
+              </span>
+              <span *ngIf="task.priority === 'low'" class="flex items-center gap-1">
+                <span class="text-sm">🌿</span>
+                <span>{{ task.priority }}</span>
+                <span class="text-sm" *ngIf="task.pinned">📌</span>
+              </span>
+            </div>
+            <div class="flex gap-1">
+              <button
+                (click)="startEditTask(task.id); $event.stopPropagation()"
+                class="group relative p-2 text-gray-400 hover:text-white hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-amber-200 hover:-translate-y-0.5 transform"
+                title="Edit task"
+                *ngIf="!isEditingTask(task.id)"
+              >
+                <span class="text-sm group-hover:scale-110 transition-transform duration-200">✏️</span>
+              </button>
+              <button
+                (click)="deleteTask(task.id); $event.stopPropagation()"
+                class="group relative p-2 text-gray-400 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-red-600 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-red-200 hover:-translate-y-0.5 transform"
+                title="Delete task"
+              >
+                <span class="text-sm group-hover:scale-110 transition-transform duration-200">🗑️</span>
+              </button>
             </div>
           </div>
 
-          <div class="task-details" *ngIf="task.description">
-            <div class="task-description">{{ task.description }}</div>
+          <div *ngIf="task.description" class="text-gray-600 text-xs leading-relaxed pl-8">
+            {{ task.description }}
           </div>
 
-          <div class="task-meta">
-            <div class="task-category" *ngIf="task.category">
-              <span class="category-tag">{{ task.category }}</span>
+          <div class="flex flex-wrap items-center gap-3 pl-8 text-xs">
+            <div *ngIf="task.category" class="px-2 py-1 bg-primary-100 text-primary-700 rounded-lg border border-primary-200">
+              {{ task.category }}
             </div>
-            <div class="task-pomodoros">
-              <div class="pomodoro-progress">
-                <div class="pomodoro-progress-bar">
+            <div class="flex items-center gap-3">
+              <div class="flex flex-col gap-1">
+                <div class="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
-                    class="pomodoro-progress-fill"
-                    [style.width.%]="(task.completedPomodoros / task.estimatedPomodoros) * 100"
-                  ></div>
+                    class="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-300 relative"
+                    [style.width.%]="getTaskCompletionPercentage(task)"
+                  >
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" *ngIf="completingTaskId() === task.id"></div>
+                  </div>
                 </div>
-                <span class="pomodoro-count" [class.incrementing]="completingTaskId() === task.id">
-                    {{ task.completedPomodoros }}/{{ task.estimatedPomodoros }} 🍅
-                  </span>
+                <span class="text-xs text-gray-600 font-medium" [class.font-bold]="completingTaskId() === task.id" [class.text-green-600]="completingTaskId() === task.id">
+                  {{ task.completedPomodoros }}/{{ task.estimatedPomodoros }} 🍅
+                </span>
               </div>
-              <div class="pomodoro-controls">
+              <div class="flex gap-1">
                 <button
                   (click)="updateTaskPomodoros(task.id, false); $event.stopPropagation()"
-                  class="pomodoro-btn"
+                  class="w-6 h-6 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-600 rounded flex items-center justify-center text-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   [disabled]="task.completedPomodoros <= 0"
                 >-</button>
                 <button
                   (click)="updateTaskPomodoros(task.id, true); $event.stopPropagation()"
-                  class="pomodoro-btn"
+                  class="w-6 h-6 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-600 rounded flex items-center justify-center text-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   [disabled]="task.completedPomodoros >= task.estimatedPomodoros"
                 >+</button>
               </div>
             </div>
-            <div class="task-date">
+            <div class="text-gray-500 text-xs">
               {{ task.createdAt | date:'shortDate' }}
             </div>
           </div>
         </div>
 
         <!-- Task Edit Form -->
-        <div class="task-edit-form" *ngIf="isEditingTask(task.id)">
-          <div class="form-group">
+        <div class="bg-primary-50 rounded-xl p-3 mt-2 border border-primary-200 animate-slideDown" *ngIf="isEditingTask(task.id)">
+          <div class="space-y-4">
             <input
               type="text"
               placeholder="Task title *"
               [(ngModel)]="editTaskTitle"
-              class="task-input"
-              (keyup.enter)="saveEditTask()"
+              class="w-full bg-white border-2 border-primary-200 rounded-lg px-3 py-2 text-gray-700 placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-all duration-300"
+              (keyup.enter)="editTaskTitle().trim() && saveEditTask()"
             >
-          </div>
-          <div class="form-group">
-              <textarea
-                placeholder="Description (optional)"
-                [(ngModel)]="editTaskDescription"
-                class="task-textarea"
-                rows="2"
-              ></textarea>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Estimated Pomodoros:</label>
-              <select [(ngModel)]="editTaskEstimatedPomodoros" class="task-select">
-                <option [value]="1">1</option>
-                <option [value]="2">2</option>
-                <option [value]="3">3</option>
-                <option [value]="4">4</option>
-                <option [value]="5">5</option>
-              </select>
+            <textarea
+              placeholder="Description (optional)"
+              [(ngModel)]="editTaskDescription"
+              class="w-full bg-white border-2 border-primary-200 rounded-lg px-3 py-2 text-gray-700 placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-all duration-300 resize-vertical min-h-16"
+              rows="2"
+            ></textarea>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div class="space-y-1">
+                <label class="text-gray-700 font-medium text-sm">Estimated Pomodoros:</label>
+                <select [(ngModel)]="editTaskEstimatedPomodoros" class="w-full bg-white border-2 border-primary-200 rounded-lg px-3 py-2 text-gray-700 font-medium hover:border-primary-400 focus:border-primary-500 focus:outline-none transition-all duration-300 cursor-pointer">
+                  <option [value]="1">1</option>
+                  <option [value]="2">2</option>
+                  <option [value]="3">3</option>
+                  <option [value]="4">4</option>
+                  <option [value]="5">5</option>
+                </select>
+              </div>
+              <div class="space-y-1">
+                <label class="text-gray-700 font-medium text-sm">Priority:</label>
+                <select [(ngModel)]="editTaskPriority" class="w-full bg-white border-2 border-primary-200 rounded-lg px-3 py-2 text-gray-700 font-medium hover:border-primary-400 focus:border-primary-500 focus:outline-none transition-all duration-300 cursor-pointer">
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <div class="space-y-1">
+                <label class="text-gray-700 font-medium text-sm">Category:</label>
+                <input
+                  type="text"
+                  placeholder="Work, Personal, etc."
+                  [(ngModel)]="editTaskCategory"
+                  class="w-full bg-white border-2 border-primary-200 rounded-lg px-3 py-2 text-gray-700 placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-all duration-300"
+                >
+              </div>
             </div>
-            <div class="form-group">
-              <label>Priority:</label>
-              <select [(ngModel)]="editTaskPriority" class="task-select">
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
+            <div class="flex gap-2 justify-start pt-2">
+              <button (click)="saveEditTask()" class="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-4 py-2 rounded-lg font-medium hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm" [disabled]="!editTaskTitle().trim()">
+                Save
+              </button>
+              <button (click)="cancelEditTask()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:-translate-y-0.5 transition-all duration-300 text-sm">
+                Cancel
+              </button>
             </div>
-            <div class="form-group">
-              <label>Category:</label>
-              <input
-                type="text"
-                placeholder="Work, Personal, etc."
-                [(ngModel)]="editTaskCategory"
-                class="task-input"
-              >
-            </div>
-          </div>
-          <div class="form-actions">
-            <button (click)="saveEditTask()" class="task-btn save-task-btn" [disabled]="!editTaskTitle().trim()">
-              Save
-            </button>
-            <button (click)="cancelEditTask()" class="task-btn cancel-task-btn">
-              Cancel
-            </button>
           </div>
         </div>
 
-        <div class="task-actions">
-          <button
-            (click)="startEditTask(task.id); $event.stopPropagation()"
-            class="task-action-btn edit-btn"
-            title="Edit task"
-            *ngIf="!isEditingTask(task.id)"
-          >
-            ✏️
-          </button>
-          <button
-            (click)="deleteTask(task.id); $event.stopPropagation()"
-            class="task-action-btn delete-btn"
-            title="Delete task"
-          >
-            🗑️
-          </button>
-        </div>
       </div>
     </div>
 
     <!-- No Tasks Message -->
     <ng-template #noTasks>
-      <div class="no-tasks">
-        <div class="no-tasks-icon">📝</div>
-        <div class="no-tasks-text">
+      <div class="text-center py-12 text-gray-500">
+        <div class="text-6xl mb-4">📝</div>
+        <div class="text-xl font-medium mb-3 text-gray-600">
           {{ showCompletedTasks() ? 'No completed tasks yet' : 'No tasks yet' }}
         </div>
-        <div class="no-tasks-hint">
+        <div class="text-gray-500">
           {{ showCompletedTasks() ? 'Complete some tasks to see them here' : 'Add your first task to get started' }}
         </div>
       </div>
     </ng-template>
 
     <!-- Task Summary -->
-    <div class="task-summary" *ngIf="totalTasks() > 0">
-      <div class="summary-item">
-        <span class="summary-label">Total:</span>
-        <span class="summary-value">{{ totalTasks() }}</span>
+    <div class="flex justify-around p-3 bg-primary-50 rounded-xl border border-primary-100 mt-3 flex-shrink-0" *ngIf="totalTasks() > 0">
+      <div class="text-center">
+        <span class="block text-xs text-gray-600 font-medium mb-1">Total:</span>
+        <span class="block text-sm font-bold text-gray-700">{{ totalTasks() }}</span>
       </div>
-      <div class="summary-item">
-        <span class="summary-label">Active:</span>
-        <span class="summary-value">{{ activeTasksCount() }}</span>
+      <div class="text-center">
+        <span class="block text-xs text-gray-600 font-medium mb-1">Active:</span>
+        <span class="block text-sm font-bold text-gray-700">{{ activeTasksCount() }}</span>
       </div>
-      <div class="summary-item">
-        <span class="summary-label">Completed:</span>
-        <span class="summary-value">{{ completedTasksCount() }}</span>
+      <div class="text-center">
+        <span class="block text-xs text-gray-600 font-medium mb-1">Completed:</span>
+        <span class="block text-sm font-bold text-gray-700">{{ completedTasksCount() }}</span>
       </div>
     </div>
   </div>

@@ -128,3 +128,24 @@
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
 }
 
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.login-btn.loading {
+  background: linear-gradient(45deg, #95a5ea, #a584d8);
+}
+
+.error-message {
+  background: #fee;
+  color: #d63384;
+  border: 1px solid #f5c2c7;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
