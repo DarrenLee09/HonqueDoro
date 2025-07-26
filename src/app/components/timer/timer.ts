@@ -4,6 +4,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { interval, Subscription, firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { StorageService } from '../../shared/services/storage.service';
+import { SessionTrackingService } from '../../shared/services/session-tracking.service';
 import { ActiveSession, TimerState, Task, TimerMode, TaskPriority } from '../../shared/types';
 import { API_CONFIG, TIMER_DURATIONS, PRIORITY_ORDER } from '../../shared/constants/app-constants';
 import { formatTime, formatElapsedTime, calculateProgressPercentage, formatTimeString, calculateEstimatedEndTime } from '../../shared/utils/time.utils';
@@ -141,7 +142,11 @@ export class Timer implements OnInit, OnDestroy {
   completedTasksCount = computed(() => this.completedTasks().length);
   activeTasksCount = computed(() => this.activeTasks().length);
 
-  constructor(private http: HttpClient, private storageService: StorageService) {}
+  constructor(
+    private http: HttpClient, 
+    private storageService: StorageService,
+    private sessionTrackingService: SessionTrackingService
+  ) {}
 
   ngOnInit() {
     console.log('Timer ngOnInit running in', typeof window !== 'undefined' ? 'browser' : 'server');
@@ -688,6 +693,15 @@ export class Timer implements OnInit, OnDestroy {
 
   // Common session completion logic to avoid duplication
   private handleSessionCompletion(): void {
+    // Add session to tracking service
+    const sessionDuration = this.getCurrentModeDuration() - this.currentTime();
+    this.sessionTrackingService.addSession({
+      date: new Date(),
+      type: this.mode() === 'work' ? 'Work' : 'Break',
+      duration: sessionDuration,
+      taskId: this.selectedTaskId()
+    });
+
     if (this.mode() === 'work') {
       // Work session completed - increment work session counters
       this.completedSessions.update(sessions => sessions + 1);

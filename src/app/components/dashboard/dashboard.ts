@@ -1,14 +1,16 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { API_CONFIG } from '../../shared/constants/app-constants';
 import { formatTime } from '../../shared/utils/time.utils';
+import { SessionTrackingService, SessionRecord } from '../../shared/services/session-tracking.service';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -20,6 +22,8 @@ export class Dashboard implements OnInit {
   
   // UI state
   showGoalEditor = false;
+  showMonthlyGoalEditor = signal(false);
+  newMonthlyGoalTarget = signal<number>(160);
 
   // Signals for dashboard data
   todayStats = signal({
@@ -55,17 +59,20 @@ export class Dashboard implements OnInit {
     { type: 'Work', duration: 25, completedAt: new Date(Date.now() - 1000 * 60 * 120) }
   ]);
 
-  // Monthly goal and data
+  // Monthly goal and data - now using real data
   monthlyGoal = signal({
     target: 160,
-    completed: 78
+    completed: 0
   });
 
-  monthlyData = signal(Array.from({ length: 30 }, (_, i) => ({
-    day: i + 1,
-    sessions: Math.floor(Math.random() * 8),
-    focusTime: Math.floor(Math.random() * 200)
-  })));
+  monthlyData = signal<{
+    day: number;
+    sessions: number;
+    focusTime: number;
+    date: Date;
+  }[]>([]);
+
+  // Note: Historical sessions are now managed by SessionTrackingService
 
   // Productivity by time of day
   hourlyProductivity = signal([
@@ -146,7 +153,7 @@ export class Dashboard implements OnInit {
     return Math.min(sessions * 10, 100);
   }
 
-  isToday(dayIndex: number): boolean {
+  isTodayWeekly(dayIndex: number): boolean {
     const today = new Date().getDay();
     const todayIndex = today === 0 ? 6 : today - 1;
     return dayIndex === todayIndex;
@@ -177,7 +184,10 @@ export class Dashboard implements OnInit {
     return trend.direction === 'up' ? '#4CAF50' : trend.direction === 'down' ? '#f44336' : '#ff9800';
   }
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private sessionTrackingService: SessionTrackingService
+  ) {}
 
   ngOnInit(): void {
     // Load data from localStorage first
@@ -187,6 +197,12 @@ export class Dashboard implements OnInit {
     if (!this.isCurrentWeek()) {
       this.resetWeeklyData();
     }
+    
+    // Update monthly data after loading from localStorage
+    this.updateMonthlyData();
+    
+    // Initialize monthly goal editor with current target
+    this.newMonthlyGoalTarget.set(this.monthlyGoal().target);
     
     // Fetch fresh data from API (if available)
     this.fetchStatistics();
@@ -247,9 +263,9 @@ export class Dashboard implements OnInit {
         completedAt: s.completedAt ? new Date(s.completedAt) : new Date()
       }));
       this.recentSessions.set(mapped.slice(0, 10)); // Still show 10 most recent for activity
-      // For weekly goal, count work sessions in the current week
-      const completed = mapped.filter(s => s.type === 'Work' && this.isDateInCurrentWeek(s.completedAt)).length;
-      this.weeklyGoal.update(w => ({ ...w, completed }));
+      // For weekly goal, count work sessions in the current week using session tracking service
+      const weeklyWorkSessions = this.sessionTrackingService.getWeeklySessions().filter(s => s.type === 'Work').length;
+      this.weeklyGoal.update(w => ({ ...w, completed: weeklyWorkSessions }));
     } catch (error) {
       console.log('API not available, using demo data for recent sessions');
       // Keep demo values - already set in signal initialization
@@ -276,6 +292,13 @@ export class Dashboard implements OnInit {
 
   addSessionToDay(dayIndex: number, sessionType: 'Work' | 'Break' = 'Work'): void {
     const sessionDuration = sessionType === 'Work' ? 25 : 5;
+    
+    // Add to session tracking service
+    this.sessionTrackingService.addSession({
+      date: new Date(),
+      type: sessionType,
+      duration: sessionDuration
+    });
     
     this.weeklyData.update(data => {
       const newData = [...data];
@@ -316,6 +339,9 @@ export class Dashboard implements OnInit {
         totalWorkTime: stats.totalWorkTime + sessionDuration
       }));
     }
+
+    // Update monthly data
+    this.updateMonthlyData();
 
     this.saveToLocalStorage();
   }
@@ -373,6 +399,106 @@ export class Dashboard implements OnInit {
     this.saveToLocalStorage();
   }
 
+  // Monthly data management methods
+  updateMonthlyData(): void {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    
+    // Get all sessions from the tracking service
+    const allSessions = this.sessionTrackingService.getSessions()();
+    
+    // Generate data for each day of the current month
+    const monthlyData = Array.from({ length: daysInMonth }, (_, i) => {
+      const day = i + 1;
+      const date = new Date(currentYear, currentMonth, day);
+      
+      // Filter sessions for this specific day
+      const daySessions = allSessions.filter(session => 
+        this.isSameDay(session.date, date)
+      );
+      
+      const workSessions = daySessions.filter(s => s.type === 'Work');
+      const totalSessions = workSessions.length;
+      const totalFocusTime = workSessions.reduce((sum, s) => sum + s.duration, 0);
+      
+      return {
+        day,
+        sessions: totalSessions,
+        focusTime: totalFocusTime,
+        date
+      };
+    });
+    
+    this.monthlyData.set(monthlyData);
+    
+    // Update monthly goal completed count using session tracking service
+    const monthlyWorkSessions = this.sessionTrackingService.getMonthlySessions().filter(s => s.type === 'Work');
+    
+    this.monthlyGoal.update(goal => ({
+      ...goal,
+      completed: monthlyWorkSessions.length
+    }));
+  }
+
+  updateMonthlyGoal(newTarget: number): void {
+    this.monthlyGoal.update(goal => ({ ...goal, target: newTarget }));
+    this.saveToLocalStorage();
+  }
+
+  // Helper method to check if two dates are the same day
+  private isSameDay(date1: Date, date2: Date): boolean {
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate();
+  }
+
+  // Get current month name
+  getCurrentMonthName(): string {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[new Date().getMonth()];
+  }
+
+  // Get current year
+  getCurrentYear(): number {
+    return new Date().getFullYear();
+  }
+
+  // Monthly goal editing methods
+  saveMonthlyGoal(): void {
+    if (this.newMonthlyGoalTarget() && this.newMonthlyGoalTarget() > 0) {
+      this.updateMonthlyGoal(this.newMonthlyGoalTarget());
+      this.showMonthlyGoalEditor.set(false);
+    }
+  }
+
+  cancelMonthlyGoalEdit(): void {
+    this.newMonthlyGoalTarget.set(this.monthlyGoal().target);
+    this.showMonthlyGoalEditor.set(false);
+  }
+
+  // Calendar helper methods
+  trackByDay(index: number, day: any): number {
+    return day.day;
+  }
+
+  isToday(date: Date): boolean {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+           date.getMonth() === today.getMonth() &&
+           date.getFullYear() === today.getFullYear();
+  }
+
+  getSessionDots(sessionCount: number): number[] {
+    const maxDots = 5;
+    const dotCount = Math.min(sessionCount, maxDots);
+    return Array.from({ length: dotCount }, (_, i) => i);
+  }
+
   // Load data from localStorage on init
   private loadFromLocalStorage(): void {
     try {
@@ -400,6 +526,12 @@ export class Dashboard implements OnInit {
           }));
           this.recentSessions.set(sessions);
         }
+
+        if (data.monthlyGoal) {
+          this.monthlyGoal.set(data.monthlyGoal);
+        }
+
+        // Note: Historical sessions are now managed by SessionTrackingService
       }
     } catch (error) {
       console.warn('Failed to load dashboard data from localStorage:', error);
@@ -414,6 +546,8 @@ export class Dashboard implements OnInit {
         weeklyData: this.weeklyData(),
         todayStats: this.todayStats(),
         recentSessions: this.recentSessions(),
+        monthlyGoal: this.monthlyGoal(),
+        monthlyData: this.monthlyData(),
         lastUpdated: new Date().toISOString()
       };
       

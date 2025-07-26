@@ -108,7 +108,7 @@
           <div 
             *ngFor="let day of weeklyData(); let i = index" 
             class="day-tile"
-            [class.today]="isToday(i)"
+            [class.today]="isTodayWeekly(i)"
             [class.active]="day.sessions > 0"
           >
             <!-- Day Name -->
@@ -196,6 +196,112 @@
           <div class="monthly-number">{{ formatFocusTime(monthlyStats().totalFocusTime) }}</div>
           <div class="monthly-label">Focus Time</div>
           <div class="monthly-detail">{{ monthlyStats().activeDays }}/30 active days</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Monthly Goal Editor -->
+    <div class="monthly-goal-section">
+      <div class="goal-editor-card">
+        <div class="goal-header">
+          <h3>📅 Monthly Goal for {{ getCurrentMonthName() }}</h3>
+          <button 
+            (click)="showMonthlyGoalEditor.set(!showMonthlyGoalEditor())" 
+            class="edit-goal-btn"
+            [class.active]="showMonthlyGoalEditor()"
+          >
+            {{ showMonthlyGoalEditor() ? 'Cancel' : 'Edit Goal' }}
+          </button>
+        </div>
+        
+        <div class="monthly-goal-progress" *ngIf="!showMonthlyGoalEditor()">
+          <div class="goal-info">
+            <span class="goal-current">{{ monthlyGoal().completed }}</span>
+            <span class="goal-separator">/</span>
+            <span class="goal-target">{{ monthlyGoal().target }}</span>
+            <span class="goal-text">sessions this month</span>
+          </div>
+          <div class="goal-progress-bar">
+            <div 
+              class="goal-progress-fill" 
+              [style.width.%]="Math.min((monthlyGoal().completed / monthlyGoal().target) * 100, 100)"
+            ></div>
+          </div>
+        </div>
+        
+        <div class="goal-editor" *ngIf="showMonthlyGoalEditor()">
+          <div class="editor-content">
+            <label for="monthlyGoalInput">Target sessions for {{ getCurrentMonthName() }}:</label>
+            <input 
+              id="monthlyGoalInput"
+              type="number" 
+              min="1" 
+              max="1000"
+              [(ngModel)]="newMonthlyGoalTarget"
+              class="goal-input"
+              placeholder="Enter target sessions"
+            >
+            <div class="editor-actions">
+              <button 
+                (click)="saveMonthlyGoal()" 
+                class="save-btn"
+                [disabled]="!newMonthlyGoalTarget() || newMonthlyGoalTarget() < 1"
+              >
+                Save Goal
+              </button>
+              <button 
+                (click)="cancelMonthlyGoalEdit()" 
+                class="cancel-btn"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Monthly Calendar View -->
+    <div class="monthly-calendar-section">
+      <h3>📊 Daily Breakdown</h3>
+      <div class="monthly-calendar">
+        <div class="calendar-header">
+          <div class="month-year">{{ getCurrentMonthName() }} {{ getCurrentYear() }}</div>
+        </div>
+        <div class="calendar-grid">
+          <!-- Day headers -->
+          <div class="day-header">Sun</div>
+          <div class="day-header">Mon</div>
+          <div class="day-header">Tue</div>
+          <div class="day-header">Wed</div>
+          <div class="day-header">Thu</div>
+          <div class="day-header">Fri</div>
+          <div class="day-header">Sat</div>
+          
+          <!-- Calendar days -->
+          <div 
+            *ngFor="let day of monthlyData(); trackBy: trackByDay"
+            class="calendar-day"
+            [class.today]="isToday(day.date)"
+            [class.has-sessions]="day.sessions > 0"
+            [class.no-sessions]="day.sessions === 0"
+            [title]="day.sessions + ' sessions, ' + formatFocusTime(day.focusTime) + ' focus time'"
+          >
+            <div class="day-number">{{ day.day }}</div>
+            <div class="day-sessions" *ngIf="day.sessions > 0">
+              <div class="session-dots">
+                <div 
+                  *ngFor="let dot of getSessionDots(day.sessions)" 
+                  class="session-dot"
+                  [class.work-dot]="true"
+                ></div>
+              </div>
+              <div class="session-count">{{ day.sessions }}</div>
+            </div>
+            <div class="day-empty" *ngIf="day.sessions === 0">
+              <div class="empty-indicator">·</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
