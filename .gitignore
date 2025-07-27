@@ -46,3 +46,6 @@ src/environments/environment.ts
 
 # Claude Code cache
 .claude/
+
+# Claude documentation
+CLAUDE.md
