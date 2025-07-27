@@ -1,15 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "angular",
-
-  // CI‑friendly defaults
   "installCommand": "npm ci",
   "buildCommand": "npm run build -- --configuration production",
   "outputDirectory": "dist",
-
   "cleanUrls": true,
   "trailingSlash": false,
-
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index.py" },
     { "source": "/(.*)", "destination": "/index.html" }
