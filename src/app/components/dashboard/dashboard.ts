@@ -112,24 +112,7 @@ export class Dashboard implements OnInit {
       }
     });
 
-    // If no real data exists, show demo data for better UX
-    if (!hasRealData) {
-      const demoData = [
-        { sessions: 1, totalDuration: 20 },   // 6-8 AM: Light activity
-        { sessions: 3, totalDuration: 75 },   // 8-10 AM: Good morning productivity  
-        { sessions: 4, totalDuration: 100 },  // 10-12 PM: Peak morning
-        { sessions: 2, totalDuration: 45 },   // 12-2 PM: Post-lunch dip
-        { sessions: 3, totalDuration: 70 },   // 2-4 PM: Afternoon recovery
-        { sessions: 2, totalDuration: 50 },   // 4-6 PM: Late afternoon
-        { sessions: 1, totalDuration: 25 },   // 6-8 PM: Evening wind down
-        { sessions: 0, totalDuration: 0 }     // 8-10 PM: Rest time
-      ];
-      
-      demoData.forEach((demo, index) => {
-        hourlyData[index].sessions = demo.sessions;
-        hourlyData[index].totalDuration = demo.totalDuration;
-      });
-    }
+    // No demo data - show actual data only
 
     // Calculate efficiency based on average session duration vs expected (25min)
     return hourlyData.map(slot => ({
@@ -401,11 +384,11 @@ export class Dashboard implements OnInit {
       const sessions = await firstValueFrom(this.http.get<any[]>(`${this.apiBase}/sessions/recent?count=40`));
       // Map backend types to 'Work'/'Break' for display, cast as 'Work' | 'Break'
       const mapped = sessions.map(s => ({
-        type: (s.type === 0) ? 'Work' as 'Work' : 'Break' as 'Break',
+        type: (s.type === 0) ? 'Work' as 'Work' : (s.type === 1 ? 'Short Break' as 'Break' : 'Long Break' as 'Break'),
         duration: s.duration || s.durationMinutes || 0,
         completedAt: s.completedAt ? new Date(s.completedAt) : new Date()
       }));
-      this.recentSessions.set(mapped.slice(0, 10)); // Still show 10 most recent for activity
+      this.recentSessions.set(mapped.slice(0, 15)); // Show 15 most recent for more activity
       // For weekly goal, count work sessions in the current week using session tracking service
       const weeklyWorkSessions = this.sessionTrackingService.getWeeklySessions().filter(s => s.type === 'Work').length;
       this.weeklyGoal.update(w => ({ ...w, completed: weeklyWorkSessions }));
@@ -424,6 +407,31 @@ export class Dashboard implements OnInit {
       return `${Math.floor(diffInMinutes / 60)}h ago`;
     } else {
       return `${Math.floor(diffInMinutes / 1440)}d ago`;
+    }
+  }
+
+  formatTimestamp(date: Date): string {
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
+  formatFullDate(date: Date): string {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    } else {
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      });
     }
   }
 

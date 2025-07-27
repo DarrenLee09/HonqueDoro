@@ -1,139 +1,324 @@
-<div class="statistics-container">
-  <!-- Header -->
-  <div class="statistics-header">
-    <h1>📊 Statistics</h1>
-    <p>Track your productivity journey and celebrate your achievements</p>
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="welcome-section">
+    <h1>📊 Statistics & Analytics</h1>
+    <p>Deep insights into your productivity journey and performance patterns</p>
   </div>
 
-  <!-- Overall Stats -->
-  <div class="stats-overview">
-    <div class="stat-card primary">
-      <div class="stat-icon">🍅</div>
-      <div class="stat-content">
-        <div class="stat-number">{{ overallStats.totalSessions }}</div>
-        <div class="stat-label">Total Sessions</div>
+  <!-- Empty State -->
+  <div *ngIf="!hasData()" class="progress-section">
+    <div class="progress-card text-center">
+      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
       </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon">⏱️</div>
-      <div class="stat-content">
-        <div class="stat-number">{{ totalFocusTimeFormatted }}</div>
-        <div class="stat-label">Total Focus Time</div>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon">📈</div>
-      <div class="stat-content">
-        <div class="stat-number">{{ overallStats.averageSessionsPerDay | number:'1.1-1' }}</div>
-        <div class="stat-label">Daily Average</div>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon">🔥</div>
-      <div class="stat-content">
-        <div class="stat-number">{{ overallStats.currentStreak }}</div>
-        <div class="stat-label">Current Streak</div>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon">🏆</div>
-      <div class="stat-content">
-        <div class="stat-number">{{ overallStats.longestStreak }}</div>
-        <div class="stat-label">Best Streak</div>
-      </div>
+      <h3 class="text-xl font-semibold text-gray-900 mb-2">No Statistics Available</h3>
+      <p class="text-gray-600 mb-6">
+        Complete some timer sessions to see your productivity analytics here.
+      </p>
+      <a routerLink="/timer" class="start-session-btn">
+        Start Your First Session
+      </a>
     </div>
   </div>
 
-  <!-- Weekly Chart -->
-  <div class="chart-section">
-    <h2>📈 Weekly Overview</h2>
-    <div class="chart-container">
-      <div class="chart">
-        <div class="chart-bars">
-          <div 
-            *ngFor="let data of weeklyData" 
-            class="bar-container"
-          >
-            <div class="bar-wrapper">
-              <div 
-                class="bar" 
-                [style.height.%]="getBarHeight(data.sessions)"
-                [attr.data-sessions]="data.sessions"
-              ></div>
+  <!-- Statistics Content -->
+  <div *ngIf="hasData()">
+    
+    <!-- Overall Stats -->
+    <div class="stats-grid">
+      <!-- Total Sessions -->
+      <div class="stat-card">
+        <div class="stat-icon">🍅</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ overallStats().totalSessions }}</div>
+          <div class="stat-label">Total Sessions</div>
+        </div>
+      </div>
+
+      <!-- Total Focus Time -->
+      <div class="stat-card">
+        <div class="stat-icon">⏱️</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ totalFocusTimeFormatted() }}</div>
+          <div class="stat-label">Total Focus Time</div>
+        </div>
+      </div>
+
+      <!-- Daily Average -->
+      <div class="stat-card">
+        <div class="stat-icon">📈</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ overallStats().averageSessionsPerDay | number:'1.1-1' }}</div>
+          <div class="stat-label">Daily Average</div>
+        </div>
+      </div>
+
+      <!-- Current Streak -->
+      <div class="stat-card">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ overallStats().currentStreak }}</div>
+          <div class="stat-label">Current Streak</div>
+        </div>
+      </div>
+
+      <!-- Best Streak -->
+      <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ overallStats().longestStreak }}</div>
+          <div class="stat-label">Best Streak</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Productivity Insights -->
+    <div class="progress-section">
+      <h2>💡 Productivity Insights</h2>
+      <div class="progress-card">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Peak Performance -->
+          <div class="insight-item">
+            <div class="insight-icon">⭐</div>
+            <div class="insight-content">
+              <h3>Peak Performance</h3>
+              <div class="insight-value">{{ bestProductivityHour().hour }}</div>
+              <div class="insight-detail" *ngIf="bestProductivityHour().sessions > 0">
+                {{ bestProductivityHour().sessions }} sessions • {{ bestProductivityHour().efficiency }}% efficiency
+              </div>
+              <div class="insight-detail" *ngIf="bestProductivityHour().sessions === 0">
+                No peak time identified yet
+              </div>
             </div>
-            <div class="bar-label">{{ data.day }}</div>
-            <div class="bar-value">{{ data.sessions }}</div>
+          </div>
+
+          <!-- Focus Power -->
+          <div class="insight-item">
+            <div class="insight-icon">⚡</div>
+            <div class="insight-content">
+              <h3>Focus Power</h3>
+              <div class="insight-value">{{ totalFocusTimeFormatted() }}</div>
+              <div class="insight-detail">
+                {{ overallStats().totalSessions }} sessions completed
+              </div>
+            </div>
+          </div>
+
+          <!-- Consistency -->
+          <div class="insight-item">
+            <div class="insight-icon">🎯</div>
+            <div class="insight-content">
+              <h3>Consistency</h3>
+              <div class="insight-value">{{ overallStats().averageSessionsPerDay | number:'1.1-1' }}/day</div>
+              <div class="insight-detail">
+                Current streak: {{ overallStats().currentStreak }} days
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      
-      <div class="chart-legend">
-        <div class="legend-item">
-          <div class="legend-color sessions"></div>
-          <span>Sessions completed</span>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Achievements -->
-  <div class="achievements-section">
-    <h2>🏆 Achievements</h2>
-    <div class="achievements-progress">
-      <span>{{ earnedAchievements }} / {{ achievements.length }} achievements unlocked</span>
-      <div class="progress-bar">
-        <div 
-          class="progress-fill" 
-          [style.width.%]="(earnedAchievements / achievements.length) * 100"
-        ></div>
-      </div>
-    </div>
-    
-    <div class="achievements-grid">
-      <div 
-        *ngFor="let achievement of achievements" 
-        class="achievement-card"
-        [class.earned]="achievement.earned"
-        [class.locked]="!achievement.earned"
-      >
-        <div class="achievement-icon">{{ achievement.icon }}</div>
-        <div class="achievement-content">
-          <div class="achievement-title">{{ achievement.title }}</div>
-          <div class="achievement-description">{{ achievement.description }}</div>
-        </div>
-        <div class="achievement-status">
-          <div *ngIf="achievement.earned" class="earned-badge">✓</div>
-          <div *ngIf="!achievement.earned" class="locked-badge">🔒</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Detailed Breakdown -->
-  <div class="breakdown-section">
-    <h2>📋 Weekly Breakdown</h2>
-    <div class="breakdown-table">
-      <div class="table-header">
-        <div class="header-cell">Day</div>
-        <div class="header-cell">Sessions</div>
-        <div class="header-cell">Focus Time</div>
-        <div class="header-cell">Progress</div>
-      </div>
-      
-      <div *ngFor="let data of weeklyData" class="table-row">
-        <div class="table-cell day">{{ data.day }}</div>
-        <div class="table-cell sessions">{{ data.sessions }}</div>
-        <div class="table-cell time">{{ data.focusTime }}m</div>
-        <div class="table-cell progress">
-          <div class="mini-progress">
+    <!-- Weekly Performance Chart -->
+    <div class="progress-section">
+      <h2>📈 Weekly Performance</h2>
+      <div class="progress-card">
+        <div class="chart-container">
+          <div class="weekly-chart">
             <div 
-              class="mini-progress-fill" 
-              [style.width.%]="getBarHeight(data.sessions)"
+              *ngFor="let data of weeklyData(); let i = index" 
+              class="chart-bar"
+              [attr.title]="data.sessions + ' sessions • ' + formatFocusTime(data.focusTime)"
+            >
+              <div 
+                class="bar-fill"
+                [style.height.%]="Math.max(getBarHeight(data.sessions), 8)"
+              >
+                <span class="bar-value" *ngIf="data.sessions > 0">{{ data.sessions }}</span>
+              </div>
+              <div class="bar-label">
+                <div class="day-name">{{ data.day }}</div>
+                <div class="focus-time">{{ formatFocusTime(data.focusTime) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hourly Productivity Pattern -->
+    <div class="progress-section">
+      <h2>🕒 Hourly Productivity Pattern</h2>
+      <div class="progress-card">
+        <div class="hourly-chart-container">
+          <div class="hourly-chart">
+            <div 
+              *ngFor="let hour of hourlyProductivity(); let i = index" 
+              class="hourly-bar"
+              [attr.title]="hour.sessions + ' sessions in ' + hour.hour + ' timeframe • ' + hour.efficiency + '% efficiency'"
+            >
+              <div 
+                class="hourly-bar-fill"
+                [style.height.%]="Math.max(getHourlyBarHeight(hour.sessions), 8)"
+                [ngClass]="{
+                  'level-0': hour.sessions === 0,
+                  'level-1': hour.sessions > 0 && hour.sessions <= 2,
+                  'level-2': hour.sessions > 2 && hour.sessions <= 4,
+                  'level-3': hour.sessions > 4 && hour.sessions <= 6,
+                  'level-4': hour.sessions > 6
+                }"
+              >
+                <span class="hourly-value" *ngIf="hour.sessions > 0">{{ hour.sessions }}</span>
+                <span class="hourly-value zero" *ngIf="hour.sessions === 0">0</span>
+              </div>
+              <div class="hourly-label">{{ hour.hour.split(' ')[0] }}</div>
+            </div>
+          </div>
+          
+          <!-- Legend -->
+          <div class="hourly-legend">
+            <div class="legend-item">
+              <div class="legend-color level-0"></div>
+              <span>0 sessions</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color level-1"></div>
+              <span>1-2</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color level-2"></div>
+              <span>3-4</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color level-3"></div>
+              <span>5-6</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color level-4"></div>
+              <span>7+</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Calendar -->
+    <div class="progress-section">
+      <h2>📅 Monthly Overview - {{ getCurrentMonthName() }} {{ getCurrentYear() }}</h2>
+      <div class="progress-card">
+        <div class="calendar-container">
+          <!-- Calendar Header -->
+          <div class="calendar-header">
+            <div class="calendar-day-label">Sun</div>
+            <div class="calendar-day-label">Mon</div>
+            <div class="calendar-day-label">Tue</div>
+            <div class="calendar-day-label">Wed</div>
+            <div class="calendar-day-label">Thu</div>
+            <div class="calendar-day-label">Fri</div>
+            <div class="calendar-day-label">Sat</div>
+          </div>
+          
+          <!-- Calendar Grid -->
+          <div class="calendar-grid">
+            <div 
+              *ngFor="let day of monthlyData(); trackBy: trackByDay"
+              class="calendar-day"
+              [ngClass]="{
+                'has-sessions': !day.isEmpty && day.sessions > 0,
+                'is-today': !day.isEmpty && isToday(day.date),
+                'is-empty': day.isEmpty
+              }"
+              [attr.title]="day.isEmpty ? '' : (day.sessions + ' sessions • ' + formatFocusTime(day.focusTime) + ' focus time')"
+            >
+              <div class="day-number" *ngIf="!day.isEmpty">{{ day.day }}</div>
+              <div class="session-dots" *ngIf="!day.isEmpty && day.sessions > 0">
+                <div class="dots-container">
+                  <div 
+                    *ngFor="let dot of getSessionDots(day.sessions)" 
+                    class="session-dot"
+                  ></div>
+                </div>
+                <div class="excess-count" *ngIf="day.sessions > 5">+{{ day.sessions - 5 }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievements -->
+    <div class="progress-section">
+      <h2>🏆 Achievements</h2>
+      <div class="progress-card">
+        <!-- Progress Overview -->
+        <div class="achievement-progress">
+          <div class="progress-text">
+            {{ earnedAchievements() }} / {{ achievements.length }} achievements unlocked
+          </div>
+          <div class="progress-bar">
+            <div 
+              class="progress-fill achievement-fill"
+              [style.width.%]="(earnedAchievements() / achievements.length) * 100"
             ></div>
+          </div>
+          <div class="progress-percentage">
+            {{ (earnedAchievements() / achievements.length * 100) | number:'1.0-0' }}% Complete
+          </div>
+        </div>
+        
+        <!-- Achievement Cards -->
+        <div class="achievements-grid">
+          <div 
+            *ngFor="let achievement of achievements" 
+            class="achievement-card"
+            [ngClass]="{
+              'earned': achievement.earned,
+              'locked': !achievement.earned
+            }"
+          >
+            <div class="achievement-icon">{{ achievement.icon }}</div>
+            <div class="achievement-content">
+              <div class="achievement-title">{{ achievement.title }}</div>
+              <div class="achievement-description">{{ achievement.description }}</div>
+            </div>
+            <div class="achievement-status">
+              <div *ngIf="achievement.earned" class="earned-badge">✓</div>
+              <div *ngIf="!achievement.earned" class="locked-badge">🔒</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weekly Breakdown -->
+    <div class="progress-section">
+      <h2>📋 Weekly Breakdown</h2>
+      <div class="progress-card">
+        <div class="breakdown-table">
+          <!-- Table Header -->
+          <div class="table-header">
+            <div class="header-cell">Day</div>
+            <div class="header-cell">Sessions</div>
+            <div class="header-cell">Focus Time</div>
+            <div class="header-cell">Efficiency</div>
+          </div>
+          
+          <!-- Table Rows -->
+          <div *ngFor="let data of weeklyData(); let i = index" class="table-row">
+            <div class="cell day-cell">{{ data.day }}</div>
+            <div class="cell sessions-cell">{{ data.sessions }}</div>
+            <div class="cell time-cell">{{ formatFocusTime(data.focusTime) }}</div>
+            <div class="cell efficiency-cell">
+              <div class="efficiency-bar">
+                <div 
+                  class="efficiency-fill"
+                  [style.width.%]="getBarHeight(data.sessions)"
+                ></div>
+              </div>
+              <span class="efficiency-text">{{ calculateEfficiency(data.sessions, data.focusTime) }}%</span>
+            </div>
           </div>
         </div>
       </div>

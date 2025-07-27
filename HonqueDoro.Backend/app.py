@@ -108,7 +108,6 @@ def pause_session(session_id):
     if not session:
         return jsonify({"error": f"Session with ID {session_id} not found"}), 404
     
-    print(f"DEBUG: Pause request for session {session_id}, current status: {session['status']}")
     
     if session["status"] != SessionStatus.ACTIVE:
         return jsonify({"error": f"Session is not currently active. Current status: {session['status']}"}), 400
@@ -138,7 +137,6 @@ def resume_session(session_id):
     if not session:
         return jsonify({"error": f"Session with ID {session_id} not found"}), 404
     
-    print(f"DEBUG: Resume request for session {session_id}, current status: {session['status']}")
     
     if session["status"] != SessionStatus.PAUSED:
         return jsonify({"error": f"Session is not currently paused. Current status: {session['status']}"}), 400
