@@ -11,7 +11,7 @@
     "footer";
   gap: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 25%, #ff8e53 50%, #ff6b9d 75%, #c44569 100%);
+  background-color: var(--color-background);
   color: #333;
   position: relative;
   overflow-x: hidden;

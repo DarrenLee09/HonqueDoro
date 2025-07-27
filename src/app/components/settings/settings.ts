@@ -5,6 +5,7 @@ import { StorageService } from '../../shared/services/storage.service';
 import { SessionTrackingService } from '../../shared/services/session-tracking.service';
 import { NotificationService } from '../../shared/services/notification.service';
 import { ThemeService } from '../../shared/services/theme.service';
+import { BackgroundService, ColorOption } from '../../shared/services/background.service';
 import { TIMER_DEFAULTS } from '../../shared/constants/app-constants';
 import { AppSettings } from '../../shared/interfaces/settings.interface';
 
@@ -25,22 +26,27 @@ export class Settings implements OnInit {
     soundEnabled: true,
     desktopNotifications: true,
     darkMode: false,
+    backgroundColor: '#667eea',
     dailyGoal: 8
   };
 
   isLoading = signal(false);
   successMessage = signal<string | null>(null);
   selectedFile: File | null = null;
+  customColorValue: string = '';
 
   constructor(
     private storageService: StorageService,
     private sessionTrackingService: SessionTrackingService,
     public notificationService: NotificationService,
-    public themeService: ThemeService
+    public themeService: ThemeService,
+    public backgroundService: BackgroundService
   ) {}
 
   ngOnInit(): void {
     this.loadSettings();
+    // Initialize background service with current settings
+    this.backgroundService.initializeBackground(this.settings.backgroundColor);
   }
 
   private loadSettings(): void {
@@ -86,8 +92,10 @@ export class Settings implements OnInit {
       soundEnabled: true,
       desktopNotifications: true,
       darkMode: false,
+      backgroundColor: '#667eea',
       dailyGoal: 8
     };
+    this.backgroundService.initializeBackground(this.settings.backgroundColor);
   }
 
   // Data Management Methods
@@ -330,5 +338,41 @@ export class Settings implements OnInit {
     this.settings.darkMode = isDark;
     this.successMessage.set('Theme reset to system preference!');
     setTimeout(() => this.successMessage.set(null), 3000);
+  }
+
+  // Background Methods
+  onColorSelect(color: ColorOption): void {
+    this.settings.backgroundColor = color.hex;
+    this.backgroundService.setBackgroundColor(color.hex);
+    this.successMessage.set(`Background changed to ${color.name}!`);
+    setTimeout(() => this.successMessage.set(null), 3000);
+  }
+
+  onCustomColorApply(): void {
+    if (!this.customColorValue.trim()) {
+      alert('Please enter a valid hex color.');
+      return;
+    }
+
+    const hexPattern = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+    if (!hexPattern.test(this.customColorValue.trim())) {
+      alert('Please enter a valid hex color (e.g., #ff0000).');
+      return;
+    }
+
+    this.settings.backgroundColor = this.customColorValue.trim();
+    this.backgroundService.setBackgroundColor(this.customColorValue.trim());
+    this.successMessage.set('Custom color applied!');
+    setTimeout(() => this.successMessage.set(null), 3000);
+  }
+
+  getCurrentColorName(): string {
+    const currentColor = this.settings.backgroundColor;
+    const found = this.backgroundService.colorPalette.find(c => c.hex === currentColor);
+    return found ? found.name : 'Custom';
+  }
+
+  isColorSelected(color: ColorOption): boolean {
+    return this.settings.backgroundColor === color.hex;
   }
 }

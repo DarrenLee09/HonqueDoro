@@ -48,6 +48,121 @@
   box-shadow: var(--shadow-xl);
 }
 
+/* Color Palette Styles */
+.color-palette-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.color-palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+  gap: 1rem;
+  max-width: 100%;
+}
+
+.color-option {
+  width: 100%;
+  height: 50px;
+  border-radius: 8px;
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-width: 50px;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-text-primary);
+}
+
+.color-option.selected {
+  border-color: var(--color-text-primary);
+  transform: scale(1.1);
+  box-shadow: var(--shadow-lg);
+}
+
+.color-option .check-icon {
+  color: white;
+  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.7));
+}
+
+.color-option[style*="ffffff"] .check-icon,
+.color-option[style*="f5f5f5"] .check-icon {
+  color: #000000;
+  filter: drop-shadow(1px 1px 2px rgba(255, 255, 255, 0.7));
+}
+
+.custom-color {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-background-secondary);
+  min-width: 0;
+}
+
+.custom-color label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.custom-color-input {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+  width: 100%;
+}
+
+.custom-color-input .form-input {
+  flex: 1;
+  font-family: monospace;
+  height: 2.75rem;
+  min-width: 0;
+}
+
+.custom-color-input .btn {
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.current-color-info {
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: var(--color-background-tertiary);
+  border: 1px solid var(--color-border);
+}
+
+.current-color-info .info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.current-color-preview {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
 .settings-section h2 {
   font-size: 1.4rem;
   font-weight: 600;

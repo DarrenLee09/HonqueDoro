@@ -293,6 +293,59 @@
             <small>Theme preference is saved automatically and syncs across browser sessions</small>
           </div>
         </div>
+
+        <!-- Background Color Palette -->
+        <div class="form-group">
+          <label>🎨 Background Color</label>
+          <div class="color-palette-section">
+            <div class="color-palette">
+              <div 
+                *ngFor="let color of backgroundService.colorPalette" 
+                class="color-option"
+                [class.selected]="isColorSelected(color)"
+                (click)="onColorSelect(color)"
+                [style.background-color]="color.hex"
+                [title]="color.name + ' (' + color.hex + ')'"
+              >
+                <svg *ngIf="isColorSelected(color)" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="check-icon">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+              </div>
+            </div>
+            
+            <div class="custom-color">
+              <label for="customColor">Custom Hex Color</label>
+              <div class="custom-color-input">
+                <input
+                  type="text"
+                  id="customColor"
+                  [(ngModel)]="customColorValue"
+                  name="customColor"
+                  placeholder="#ff0000"
+                  class="form-input"
+                  maxlength="7"
+                />
+                <button 
+                  type="button" 
+                  (click)="onCustomColorApply()" 
+                  class="btn btn-outline btn-small"
+                >
+                  Apply
+                </button>
+              </div>
+              <small class="form-help">
+                Enter a hex color code (e.g., #ff0000 for red)
+              </small>
+            </div>
+
+            <div class="current-color-info">
+              <div class="info-item">
+                <div class="current-color-preview" [style.background-color]="settings.backgroundColor"></div>
+                <small>Current: {{ getCurrentColorName() }} ({{ settings.backgroundColor }})</small>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

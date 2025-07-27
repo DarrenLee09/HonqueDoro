@@ -15,6 +15,7 @@ export interface AppSettings {
   
   // Appearance
   darkMode: boolean;
+  backgroundColor: string;
   
   // Goals
   dailyGoal: number;
