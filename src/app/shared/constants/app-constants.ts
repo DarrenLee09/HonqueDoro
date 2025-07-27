@@ -1,5 +1,7 @@
 export const API_CONFIG = {
-  BASE_URL: 'http://localhost:5116/api',
+  BASE_URL: typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+    ? 'http://localhost:5116/api' 
+    : '/api',
   ENDPOINTS: {
     SESSIONS: '/sessions',
     ACTIVE: '/sessions/active',

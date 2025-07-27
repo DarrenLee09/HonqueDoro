@@ -1,5 +1,15 @@
-{
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "framework": "angular"
-} 
+● {
+    "buildCommand": "npm run build",
+    "installCommand": "npm install",
+    "framework": "angular",
+    "rewrites": [
+      {
+        "source": "/api/(.*)",
+        "destination": "/api/index.py"
+      },
+      {
+        "source": "/(.*)",
+        "destination": "/index.html"
+      }
+    ]
+  }
