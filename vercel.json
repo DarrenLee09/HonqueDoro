@@ -2,6 +2,7 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "framework": "angular",
+  "outputDirectory": "dist/angular-app/browser",
   "rewrites": [
     {
       "source": "/api/(.*)",
