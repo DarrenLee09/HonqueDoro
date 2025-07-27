@@ -2,10 +2,10 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "framework": "angular",
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/api/(.*)",
+      "destination": "/api"
     }
   ]
 } 
