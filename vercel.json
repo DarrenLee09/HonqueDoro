@@ -6,10 +6,17 @@
     {
       "source": "/api/(.*)",
       "destination": "/api/index.py"
+    }
+  ],
+  "trailingSlash": false,
+  "cleanUrls": false,
+  "routes": [
+    {
+      "handle": "filesystem"
     },
     {
-      "source": "/((?!api).*)",
-      "destination": "/index.html"
+      "src": "/.*",
+      "dest": "/index.html"
     }
   ]
 }
