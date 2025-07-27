@@ -2,15 +2,11 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "framework": "angular",
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index.py"
-    }
-  ],
-  "trailingSlash": false,
-  "cleanUrls": false,
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.py"
+    },
     {
       "handle": "filesystem"
     },
