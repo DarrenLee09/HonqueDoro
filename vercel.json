@@ -2,24 +2,7 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "framework": "angular",
-  "functions": {
-    "HonqueDoro.Backend/app.py": {
-      "runtime": "@vercel/python"
-    }
-  },
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/HonqueDoro.Backend/app.py"
-    },
-    {
-      "src": "/health",
-      "dest": "/HonqueDoro.Backend/app.py"
-    },
-    {
-      "src": "/debug/(.*)",
-      "dest": "/HonqueDoro.Backend/app.py"
-    },
     {
       "src": "/(.*)",
       "dest": "/index.html"
