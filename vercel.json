@@ -1,18 +1,15 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "framework": "angular",
-  "installCommand": "npm ci",
-  "buildCommand": "npm run build -- --configuration production",
-  "outputDirectory": "dist",
-  "cleanUrls": true,
-  "trailingSlash": false,
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.py" },
-    { "source": "/dashboard", "destination": "/index.html" },
-    { "source": "/timer", "destination": "/index.html" },
-    { "source": "/settings", "destination": "/index.html" },
-    { "source": "/statistics", "destination": "/index.html" },
-    { "source": "/login", "destination": "/index.html" },
-    { "source": "/register", "destination": "/index.html" }
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
