@@ -12,8 +12,8 @@
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: var(--color-surface);
+  backdrop-filter: var(--backdrop-blur);
   border-radius: 16px;
   padding: 1.5rem;
   display: flex;
@@ -21,21 +21,21 @@
   align-items: center;
   text-align: center;
   gap: 1rem;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
   transition: all 0.3s ease;
-  border: 2px solid rgba(102, 126, 234, 0.05);
+  border: 2px solid var(--color-primary-light);
   min-height: 140px;
 }
 
 .stat-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-  border-color: rgba(102, 126, 234, 0.15);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--color-border-hover);
 }
 
 .stat-card.primary {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-  border-color: rgba(102, 126, 234, 0.2);
+  background: var(--color-primary-light);
+  border-color: var(--color-border-hover);
 }
 
 .stat-icon {
@@ -46,7 +46,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 16px;
-  background: linear-gradient(135deg, #f8f9ff, #e8ebff);
+  background: var(--color-background-secondary);
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
   flex-shrink: 0;
 }
@@ -59,7 +59,7 @@
 .stat-number {
   font-size: 2rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: var(--color-text-primary);
   margin-bottom: 0.25rem;
   line-height: 1.1;
 }
@@ -67,14 +67,14 @@
 .stat-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #666;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1.2;
 }
 
 .stat-card.primary .stat-number {
-  background: linear-gradient(45deg, #667eea, #764ba2);
+  background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -82,19 +82,19 @@
 
 /* Progress section spacing */
 .progress-section {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: var(--color-surface);
+  backdrop-filter: var(--backdrop-blur);
   border-radius: 20px;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-  border: 2px solid rgba(102, 126, 234, 0.05);
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--color-primary-light);
 }
 
 .progress-section h2 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: var(--color-text-primary);
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
@@ -114,17 +114,17 @@
   align-items: center;
   gap: 1.5rem;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--color-surface);
   border-radius: 16px;
-  border: 2px solid rgba(102, 126, 234, 0.05);
+  border: 2px solid var(--color-primary-light);
   transition: all 0.3s ease;
   min-height: 100px;
 }
 
 .insight-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-  border-color: rgba(102, 126, 234, 0.1);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-border-hover);
 }
 
 .insight-icon {
@@ -135,7 +135,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 16px;
-  background: linear-gradient(135deg, #f8f9ff, #e8ebff);
+  background: var(--color-background-secondary);
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
   flex-shrink: 0;
 }

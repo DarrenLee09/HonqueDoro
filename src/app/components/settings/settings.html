@@ -4,6 +4,14 @@
     <p>Customize your Pomodoro experience to fit your workflow</p>
   </div>
 
+  <!-- Success Message -->
+  <div *ngIf="successMessage()" class="success-message">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+    </svg>
+    {{ successMessage() }}
+  </div>
+
   <form (ngSubmit)="saveSettings()" class="settings-form">
     <!-- Timer Durations -->
     <div class="settings-section">
@@ -116,37 +124,85 @@
     <!-- Notifications -->
     <div class="settings-section">
       <h2>🔔 Notifications</h2>
-      <div class="form-grid">
-        <div class="form-group checkbox-group">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [(ngModel)]="settings.soundEnabled"
-              name="soundEnabled"
-              class="checkbox-input"
-            />
-            <span class="checkbox-custom"></span>
-            <span class="checkbox-text">
-              <strong>Sound notifications</strong>
-              <small>Play sound when sessions start and end</small>
-            </span>
-          </label>
+      <div class="notifications-layout">
+        <!-- Notification Settings Row -->
+        <div class="notification-controls">
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="settings.soundEnabled"
+                name="soundEnabled"
+                class="checkbox-input"
+              />
+              <span class="checkbox-custom"></span>
+              <span class="checkbox-text">
+                <strong>Sound notifications</strong>
+                <small>Play sound when sessions start and end</small>
+              </span>
+            </label>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="settings.desktopNotifications"
+                name="desktopNotifications"
+                class="checkbox-input"
+                (change)="onDesktopNotificationToggle()"
+              />
+              <span class="checkbox-custom"></span>
+              <span class="checkbox-text">
+                <strong>Desktop notifications</strong>
+                <small>Show browser notifications for session changes</small>
+              </span>
+            </label>
+          </div>
         </div>
 
-        <div class="form-group checkbox-group">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [(ngModel)]="settings.desktopNotifications"
-              name="desktopNotifications"
-              class="checkbox-input"
-            />
-            <span class="checkbox-custom"></span>
-            <span class="checkbox-text">
-              <strong>Desktop notifications</strong>
-              <small>Show browser notifications for session changes</small>
-            </span>
-          </label>
+        <!-- Desktop Notification Status -->
+        <div class="notification-status" *ngIf="settings.desktopNotifications">
+          <div class="status-item" [ngClass]="getPermissionStatusClass()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/>
+            </svg>
+            <span>{{ getPermissionStatusText() }}</span>
+          </div>
+          <button 
+            type="button" 
+            *ngIf="needsPermission()" 
+            (click)="requestNotificationPermission()" 
+            class="btn btn-outline btn-small"
+          >
+            Enable Notifications
+          </button>
+        </div>
+
+        <!-- Test Buttons -->
+        <div class="notification-tests">
+          <label>Test Notifications</label>
+          <div class="button-group compact-buttons">
+            <button type="button" (click)="testSound()" class="btn btn-outline btn-compact">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z"/>
+              </svg>
+              Test Sound
+            </button>
+            <button type="button" (click)="testDesktopNotification()" class="btn btn-outline btn-compact">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10,21H14A2,2 0 0,1 12,23A2,2 0 0,1 10,21M21,19V20H3V19L5,17V11C5,7.9 7.03,5.17 10,4.29C10,4.19 10,4.1 10,4A2,2 0 0,1 12,2A2,2 0 0,1 14,4C14,4.1 14,4.19 14,4.29C16.97,5.17 19,7.9 19,11V17L21,19M12,6A4,4 0 0,0 8,10V18H16V10A4,4 0 0,0 12,6Z"/>
+              </svg>
+              Test Desktop
+            </button>
+            <button type="button" (click)="testAllNotifications()" class="btn btn-secondary btn-compact">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/>
+              </svg>
+              Test All
+            </button>
+          </div>
+          <small class="form-help">Test your notification settings to make sure they work correctly</small>
         </div>
       </div>
     </div>
@@ -185,13 +241,131 @@
               [(ngModel)]="settings.darkMode"
               name="darkMode"
               class="checkbox-input"
+              (change)="onDarkModeToggle()"
             />
             <span class="checkbox-custom"></span>
             <span class="checkbox-text">
-              <strong>Dark mode</strong>
-              <small>Use dark theme for the application</small>
+              <strong>{{ settings.darkMode ? '🌙' : '☀️' }} {{ settings.darkMode ? 'Dark' : 'Light' }} mode</strong>
+              <small>{{ settings.darkMode ? 'Dark theme for comfortable viewing in low light' : 'Light theme for comfortable viewing in bright environments' }}</small>
             </span>
           </label>
+        </div>
+
+        <div class="theme-preview">
+          <div class="preview-label">
+            <span>Theme Preview</span>
+            <button type="button" (click)="resetToSystemTheme()" class="btn btn-outline btn-small">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,18.5A6.5,6.5 0 0,1 5.5,12A6.5,6.5 0 0,1 12,5.5A6.5,6.5 0 0,1 18.5,12A6.5,6.5 0 0,1 12,18.5M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+              </svg>
+              System Default
+            </button>
+          </div>
+          <div class="theme-preview-container">
+            <div class="preview-item" [ngClass]="{'preview-active': !settings.darkMode}">
+              <div class="preview-card light-preview">
+                <div class="preview-header"></div>
+                <div class="preview-content">
+                  <div class="preview-line"></div>
+                  <div class="preview-line short"></div>
+                </div>
+              </div>
+              <span class="preview-name">Light</span>
+            </div>
+            <div class="preview-item" [ngClass]="{'preview-active': settings.darkMode}">
+              <div class="preview-card dark-preview">
+                <div class="preview-header"></div>
+                <div class="preview-content">
+                  <div class="preview-line"></div>
+                  <div class="preview-line short"></div>
+                </div>
+              </div>
+              <span class="preview-name">Dark</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="theme-info">
+          <div class="info-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"/>
+            </svg>
+            <small>Theme preference is saved automatically and syncs across browser sessions</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Management -->
+    <div class="settings-section">
+      <h2>💾 Data Management</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Export Session Data</label>
+          <div class="button-group">
+            <button type="button" (click)="exportData()" class="btn btn-outline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+              </svg>
+              Export to JSON
+            </button>
+            <button type="button" (click)="exportCSV()" class="btn btn-outline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+              </svg>
+              Export to CSV
+            </button>
+          </div>
+          <small class="form-help">Download all your session data for backup or analysis</small>
+        </div>
+
+        <div class="form-group">
+          <label for="importFile">Import Session Data</label>
+          <div class="file-input-group">
+            <input 
+              type="file" 
+              id="importFile" 
+              #fileInput
+              (change)="onFileSelected($event)"
+              accept=".json"
+              class="file-input"
+            />
+            <button type="button" (click)="fileInput.click()" class="btn btn-outline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+              </svg>
+              Choose File
+            </button>
+            <span class="file-name" *ngIf="selectedFile">{{ selectedFile.name }}</span>
+          </div>
+          <div class="button-group" *ngIf="selectedFile">
+            <button type="button" (click)="importData()" class="btn btn-secondary">
+              Import Data
+            </button>
+            <button type="button" (click)="clearFileSelection()" class="btn btn-outline">
+              Cancel
+            </button>
+          </div>
+          <small class="form-help">Import previously exported session data (JSON format only)</small>
+        </div>
+
+        <div class="form-group danger-zone">
+          <label>Reset Statistics</label>
+          <div class="button-group">
+            <button type="button" (click)="clearSessionHistory()" class="btn btn-danger">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z"/>
+              </svg>
+              Clear Session History
+            </button>
+            <button type="button" (click)="resetAllData()" class="btn btn-danger">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,6V9L16,5L12,1V4A8,8 0 0,0 4,12C4,13.57 4.46,15.03 5.24,16.26L6.7,14.8C6.25,13.97 6,13 6,12A6,6 0 0,1 12,6M18.76,7.74L17.3,9.2C17.74,10.04 18,11 18,12A6,6 0 0,1 12,18V15L8,19L12,23V20A8,8 0 0,0 20,12C20,10.43 19.54,8.97 18.76,7.74Z"/>
+              </svg>
+              Reset All Data
+            </button>
+          </div>
+          <small class="form-help text-danger">⚠️ Warning: These actions cannot be undone</small>
         </div>
       </div>
     </div>

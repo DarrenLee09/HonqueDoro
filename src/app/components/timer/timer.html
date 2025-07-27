@@ -174,7 +174,7 @@
   </div>
 
   <!-- Task List Section -->
-  <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-2xl w-full lg:max-w-lg flex flex-col min-w-0" style="height: calc(100vh - 16rem); max-height: calc(100vh - 16rem); margin-bottom: 2rem;">
+  <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-2xl w-full lg:max-w-lg flex flex-col min-w-0 overflow-hidden" style="height: calc(100vh - 16rem); max-height: calc(100vh - 16rem); margin-bottom: 2rem;">
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 gap-3">
       <h3 class="text-lg font-semibold text-gray-700 flex-shrink-0">📋 Task List</h3>
       <div class="flex gap-3 flex-shrink-0">
@@ -210,24 +210,26 @@
           class="w-full bg-white border-2 border-primary-200 rounded-xl px-4 py-3 text-gray-700 placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-all duration-300 resize-vertical min-h-20"
           rows="2"
         ></textarea>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="space-y-2">
-            <label class="text-gray-700 font-medium text-sm">Estimated Pomodoros:</label>
-            <select [(ngModel)]="newTaskEstimatedPomodoros" class="w-full bg-white border-2 border-primary-200 rounded-xl px-4 py-3 text-gray-700 font-medium hover:border-primary-400 focus:border-primary-500 focus:outline-none transition-all duration-300 cursor-pointer">
-              <option [value]="1">1</option>
-              <option [value]="2">2</option>
-              <option [value]="3">3</option>
-              <option [value]="4">4</option>
-              <option [value]="5">5</option>
-            </select>
-          </div>
-          <div class="space-y-2">
-            <label class="text-gray-700 font-medium text-sm">Priority:</label>
-            <select [(ngModel)]="newTaskPriority" class="w-full bg-white border-2 border-primary-200 rounded-xl px-4 py-3 text-gray-700 font-medium hover:border-primary-400 focus:border-primary-500 focus:outline-none transition-all duration-300 cursor-pointer">
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="text-gray-700 font-medium text-sm">Estimated Pomodoros:</label>
+              <select [(ngModel)]="newTaskEstimatedPomodoros" class="w-full bg-white border-2 border-primary-200 rounded-xl px-4 py-3 text-gray-700 font-medium hover:border-primary-400 focus:border-primary-500 focus:outline-none transition-all duration-300 cursor-pointer">
+                <option [value]="1">1</option>
+                <option [value]="2">2</option>
+                <option [value]="3">3</option>
+                <option [value]="4">4</option>
+                <option [value]="5">5</option>
+              </select>
+            </div>
+            <div class="space-y-2">
+              <label class="text-gray-700 font-medium text-sm">Priority:</label>
+              <select [(ngModel)]="newTaskPriority" class="w-full bg-white border-2 border-primary-200 rounded-xl px-4 py-3 text-gray-700 font-medium hover:border-primary-400 focus:border-primary-500 focus:outline-none transition-all duration-300 cursor-pointer">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
           </div>
           <div class="space-y-2">
             <label class="text-gray-700 font-medium text-sm">Category:</label>
@@ -251,7 +253,7 @@
     <div class="space-y-2 overflow-y-auto flex-1 min-h-0" *ngIf="visibleTasks().length > 0; else noTasks">
       <div
         *ngFor="let task of visibleTasks()"
-        class="bg-white rounded-xl p-3 shadow-sm border border-gray-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+        class="task-item bg-white rounded-xl p-3 shadow-sm border border-gray-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
         [class]="{
           'opacity-60 bg-green-50 border-green-200': task.completed,
           'border-primary-500 bg-primary-100 shadow-lg ring-2 ring-primary-200': task.pinned && !task.completed,
@@ -360,7 +362,7 @@
         </div>
 
         <!-- Task Edit Form -->
-        <div class="bg-primary-50 rounded-xl p-3 mt-2 border border-primary-200 animate-slideDown" *ngIf="isEditingTask(task.id)">
+        <div class="bg-primary-50 rounded-xl p-3 mt-2 border border-primary-200 animate-slideDown task-edit-form" *ngIf="isEditingTask(task.id)">
           <div class="space-y-4">
             <input
               type="text"
@@ -375,24 +377,26 @@
               class="w-full bg-white border-2 border-primary-200 rounded-lg px-3 py-2 text-gray-700 placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-all duration-300 resize-vertical min-h-16"
               rows="2"
             ></textarea>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div class="space-y-1">
-                <label class="text-gray-700 font-medium text-sm">Estimated Pomodoros:</label>
-                <select [(ngModel)]="editTaskEstimatedPomodoros" class="w-full bg-white border-2 border-primary-200 rounded-lg px-3 py-2 text-gray-700 font-medium hover:border-primary-400 focus:border-primary-500 focus:outline-none transition-all duration-300 cursor-pointer">
-                  <option [value]="1">1</option>
-                  <option [value]="2">2</option>
-                  <option [value]="3">3</option>
-                  <option [value]="4">4</option>
-                  <option [value]="5">5</option>
-                </select>
-              </div>
-              <div class="space-y-1">
-                <label class="text-gray-700 font-medium text-sm">Priority:</label>
-                <select [(ngModel)]="editTaskPriority" class="w-full bg-white border-2 border-primary-200 rounded-lg px-3 py-2 text-gray-700 font-medium hover:border-primary-400 focus:border-primary-500 focus:outline-none transition-all duration-300 cursor-pointer">
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
+            <div class="space-y-3">
+              <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1">
+                  <label class="text-gray-700 font-medium text-sm">Estimated Pomodoros:</label>
+                  <select [(ngModel)]="editTaskEstimatedPomodoros" class="w-full bg-white border-2 border-primary-200 rounded-lg px-3 py-2 text-gray-700 font-medium hover:border-primary-400 focus:border-primary-500 focus:outline-none transition-all duration-300 cursor-pointer text-sm">
+                    <option [value]="1">1</option>
+                    <option [value]="2">2</option>
+                    <option [value]="3">3</option>
+                    <option [value]="4">4</option>
+                    <option [value]="5">5</option>
+                  </select>
+                </div>
+                <div class="space-y-1">
+                  <label class="text-gray-700 font-medium text-sm">Priority:</label>
+                  <select [(ngModel)]="editTaskPriority" class="w-full bg-white border-2 border-primary-200 rounded-lg px-3 py-2 text-gray-700 font-medium hover:border-primary-400 focus:border-primary-500 focus:outline-none transition-all duration-300 cursor-pointer text-sm">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
               </div>
               <div class="space-y-1">
                 <label class="text-gray-700 font-medium text-sm">Category:</label>
@@ -400,7 +404,7 @@
                   type="text"
                   placeholder="Work, Personal, etc."
                   [(ngModel)]="editTaskCategory"
-                  class="w-full bg-white border-2 border-primary-200 rounded-lg px-3 py-2 text-gray-700 placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-all duration-300"
+                  class="w-full bg-white border-2 border-primary-200 rounded-lg px-3 py-2 text-gray-700 placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-all duration-300 text-sm"
                 >
               </div>
             </div>

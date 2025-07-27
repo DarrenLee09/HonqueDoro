@@ -37,30 +37,30 @@
 
 @keyframes pomodoroIncrement {
   0% { transform: scale(1); }
-  50% { transform: scale(1.2); color: #10b981; }
+  50% { transform: scale(1.2); color: var(--color-success); }
   100% { transform: scale(1); }
 }
 
 @keyframes taskAutoComplete {
   0% {
     transform: scale(1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
   }
   25% {
     transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 8px 25px var(--color-success-light);
   }
   50% {
     transform: scale(1.1);
-    box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 12px 35px var(--color-success-light);
   }
   75% {
     transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 8px 25px var(--color-success-light);
   }
   100% {
     transform: scale(1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
   }
 }
 
@@ -92,7 +92,7 @@
 
 /* Focus states for better accessibility */
 button:focus-visible {
-  outline: 2px solid theme('colors.primary.500');
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -102,15 +102,57 @@ button:focus-visible {
 }
 
 .task-list::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-border);
   border-radius: 4px;
 }
 
 .task-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--color-text-tertiary);
   border-radius: 4px;
 }
 
 .task-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--color-text-secondary);
+}
+
+/* Task edit form specific styles */
+.task-edit-form {
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.task-edit-form .grid {
+  min-width: 0;
+}
+
+.task-edit-form select,
+.task-edit-form input {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Ensure proper spacing and alignment in edit forms */
+.task-edit-form .space-y-1 > * + * {
+  margin-top: 0.25rem;
+}
+
+.task-edit-form .space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+/* Prevent layout shift when edit form opens */
+.task-item {
+  transition: all 0.3s ease;
+}
+
+.task-item .task-edit-form {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 640px) {
+  .task-edit-form .grid-cols-2 {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
 }

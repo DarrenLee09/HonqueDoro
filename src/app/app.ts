@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 
@@ -10,15 +10,15 @@ import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 })
 export class App implements OnInit {
   protected title = 'HonqueDoro';
-  isLoggedIn: boolean = false;
+  isLoggedIn = signal<boolean>(false);
 
   auth = inject(Auth, { optional: true });
-  constructor(private router: Router) {}
+  constructor(private router: Router, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     if (this.auth) {
       onAuthStateChanged(this.auth, (user) => {
-        this.isLoggedIn = !!user;
+        this.isLoggedIn.set(!!user);
         if (user) {
           this.router.navigate(['/dashboard']);
         }

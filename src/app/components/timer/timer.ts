@@ -5,6 +5,7 @@ import { interval, Subscription, firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { StorageService } from '../../shared/services/storage.service';
 import { SessionTrackingService } from '../../shared/services/session-tracking.service';
+import { NotificationService } from '../../shared/services/notification.service';
 import { ActiveSession, TimerState, Task, TimerMode, TaskPriority } from '../../shared/types';
 import { API_CONFIG, TIMER_DURATIONS, PRIORITY_ORDER } from '../../shared/constants/app-constants';
 import { formatTime, formatElapsedTime, calculateProgressPercentage, formatTimeString, calculateEstimatedEndTime } from '../../shared/utils/time.utils';
@@ -145,7 +146,8 @@ export class Timer implements OnInit, OnDestroy {
   constructor(
     private http: HttpClient, 
     private storageService: StorageService,
-    private sessionTrackingService: SessionTrackingService
+    private sessionTrackingService: SessionTrackingService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -382,6 +384,8 @@ export class Timer implements OnInit, OnDestroy {
           this.updateStateFromSession(response);
           // Always start local timer when resuming (user explicitly clicked start)
           this.startLocalTimer();
+          // Notify session start
+          await this.notificationService.notifySessionStart(this.mode());
         }
       } else {
         // Start new session
@@ -403,6 +407,8 @@ export class Timer implements OnInit, OnDestroy {
           this.updateStateFromSession(response);
           // Always start local timer when starting new session (user explicitly clicked start)
           this.startLocalTimer();
+          // Notify session start
+          await this.notificationService.notifySessionStart(this.mode());
         }
       }
     } catch (error) {
@@ -419,6 +425,8 @@ export class Timer implements OnInit, OnDestroy {
       
       // Fallback to local timer only if backend fails
       this.startLocalTimer();
+      // Notify session start in local mode
+      await this.notificationService.notifySessionStart(this.mode());
     }
   }
 
@@ -499,8 +507,11 @@ export class Timer implements OnInit, OnDestroy {
       this.estimatedEndTime.set(undefined);
       this.serverSync.set(false);
       
-      // Use common session completion logic
-      this.handleSessionCompletion();
+      // Notify session was skipped
+      await this.notificationService.notifySessionSkipped(this.mode());
+      
+      // Use session completion logic without notifications
+      this.handleSessionCompletionSilent();
     } catch (error) {
       console.error('Error skipping timer:', error);
       // Fallback to local skip
@@ -510,8 +521,11 @@ export class Timer implements OnInit, OnDestroy {
       this.estimatedEndTime.set(undefined);
       this.serverSync.set(false);
       
-      // Use common session completion logic
-      this.handleSessionCompletion();
+      // Notify session was skipped
+      await this.notificationService.notifySessionSkipped(this.mode());
+      
+      // Use session completion logic without notifications
+      this.handleSessionCompletionSilent();
     }
   }
 
@@ -628,7 +642,7 @@ export class Timer implements OnInit, OnDestroy {
       }
     }
     
-    this.handleSessionCompletion();
+    await this.handleSessionCompletion();
     this.estimatedEndTime.set(undefined);
   }
 
@@ -692,7 +706,7 @@ export class Timer implements OnInit, OnDestroy {
   }
 
   // Common session completion logic to avoid duplication
-  private handleSessionCompletion(): void {
+  private async handleSessionCompletion(): Promise<void> {
     // Add session to tracking service
     const sessionDuration = Math.round((this.getCurrentModeDuration() - this.currentTime()) / 60); // Convert to minutes
     this.sessionTrackingService.addSession({
@@ -702,6 +716,28 @@ export class Timer implements OnInit, OnDestroy {
       taskId: this.selectedTaskId()
     });
 
+    // Notify session completion
+    await this.notificationService.notifySessionComplete(this.mode());
+
+    this.completeSessionLogic();
+  }
+
+  // Session completion without notifications (for skipped sessions)
+  private handleSessionCompletionSilent(): void {
+    // Add session to tracking service
+    const sessionDuration = Math.round((this.getCurrentModeDuration() - this.currentTime()) / 60); // Convert to minutes
+    this.sessionTrackingService.addSession({
+      date: new Date(),
+      type: this.mode() === 'work' ? 'Work' : 'Break',
+      duration: sessionDuration,
+      taskId: this.selectedTaskId()
+    });
+
+    this.completeSessionLogic();
+  }
+
+  // Common completion logic (counters, task updates, etc.)
+  private completeSessionLogic(): void {
     if (this.mode() === 'work') {
       // Work session completed - increment work session counters
       this.completedSessions.update(sessions => sessions + 1);
@@ -730,9 +766,6 @@ export class Timer implements OnInit, OnDestroy {
       this.mode.set('work');
       this.currentTime.set(TIMER_DURATIONS.WORK);
     }
-    
-    // Play notification sound
-    this.playNotificationSound();
   }
 
   // Auto-complete task with animation

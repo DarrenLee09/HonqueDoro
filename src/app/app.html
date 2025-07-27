@@ -7,7 +7,7 @@
         <a routerLink="/timer" routerLinkActive="active" class="nav-link">Timer</a>
         <a routerLink="/statistics" routerLinkActive="active" class="nav-link">Statistics</a>
         <a routerLink="/settings" routerLinkActive="active" class="nav-link">Settings</a>
-        @if (isLoggedIn) {
+        @if (isLoggedIn()) {
           <a (click)="logout()" class="nav-link">Log Out</a>
         } @else {
           <a routerLink="/login" routerLinkActive="active" class="nav-link">Log In</a>
