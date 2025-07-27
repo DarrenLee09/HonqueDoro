@@ -28,21 +28,21 @@ export class Dashboard implements OnInit {
 
   // Signals for dashboard data
   todayStats = signal({
-    completedSessions: 3,
-    totalWorkTime: 75, // in minutes
-    currentStreak: 5,
-    bestStreak: 12
+    completedSessions: 0,
+    totalWorkTime: 0, // in minutes
+    currentStreak: 0,
+    bestStreak: 0
   });
 
   weeklyGoal = signal({
     target: 40,
-    completed: 18
+    completed: 0
   });
 
   weeklyData = signal([
-    { day: 'Mon', sessions: 6, focusTime: 150, completed: true },
-    { day: 'Tue', sessions: 4, focusTime: 100, completed: true },
-    { day: 'Wed', sessions: 8, focusTime: 200, completed: true },
+    { day: 'Mon', sessions: 0, focusTime: 0, completed: false },
+    { day: 'Tue', sessions: 0, focusTime: 0, completed: false },
+    { day: 'Wed', sessions: 0, focusTime: 0, completed: false },
     { day: 'Thu', sessions: 0, focusTime: 0, completed: false },
     { day: 'Fri', sessions: 0, focusTime: 0, completed: false },
     { day: 'Sat', sessions: 0, focusTime: 0, completed: false },
@@ -53,12 +53,7 @@ export class Dashboard implements OnInit {
     type: 'Work' | 'Break';
     duration: number;
     completedAt: Date;
-  }[]>([
-    { type: 'Work', duration: 25, completedAt: new Date(Date.now() - 1000 * 60 * 30) },
-    { type: 'Break', duration: 5, completedAt: new Date(Date.now() - 1000 * 60 * 60) },
-    { type: 'Work', duration: 25, completedAt: new Date(Date.now() - 1000 * 60 * 90) },
-    { type: 'Work', duration: 25, completedAt: new Date(Date.now() - 1000 * 60 * 120) }
-  ]);
+  }[]>([]);
 
   // Monthly goal and data - now using real data
   monthlyGoal = signal({
