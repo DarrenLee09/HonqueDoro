@@ -8,6 +8,11 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index.py" },
-    { "source": "/((?!api).*)", "destination": "/index.html" }
+    { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/timer", "destination": "/index.html" },
+    { "source": "/settings", "destination": "/index.html" },
+    { "source": "/statistics", "destination": "/index.html" },
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/register", "destination": "/index.html" }
   ]
 }
