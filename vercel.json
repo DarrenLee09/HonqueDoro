@@ -4,7 +4,7 @@
   "framework": "angular",
   "functions": {
     "HonqueDoro.Backend/app.py": {
-      "runtime": "python3.9"
+      "runtime": "@vercel/python"
     }
   },
   "routes": [
