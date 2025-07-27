@@ -694,7 +694,7 @@ export class Timer implements OnInit, OnDestroy {
   // Common session completion logic to avoid duplication
   private handleSessionCompletion(): void {
     // Add session to tracking service
-    const sessionDuration = this.getCurrentModeDuration() - this.currentTime();
+    const sessionDuration = Math.round((this.getCurrentModeDuration() - this.currentTime()) / 60); // Convert to minutes
     this.sessionTrackingService.addSession({
       date: new Date(),
       type: this.mode() === 'work' ? 'Work' : 'Break',

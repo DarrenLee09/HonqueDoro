@@ -174,8 +174,8 @@
 
 .weekly-chart {
   display: flex;
-  align-items: end;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: space-evenly;
   gap: 1.5rem;
   height: 14rem;
   padding: 1rem;
@@ -185,9 +185,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.75rem;
   flex: 1;
   max-width: 70px;
+  height: 100%;
 }
 
 .bar-fill {
@@ -213,17 +215,20 @@
 
 .bar-label {
   text-align: center;
+  margin-top: 0.5rem;
 }
 
 .day-name {
   font-weight: 600;
   color: #1f2937;
   font-size: 0.75rem;
+  white-space: nowrap;
 }
 
 .focus-time {
   color: #6b7280;
   font-size: 0.625rem;
+  white-space: nowrap;
 }
 
 /* Hourly chart styles */
@@ -232,35 +237,42 @@
   border-radius: 16px;
   padding: 2rem;
   border: 2px solid rgba(102, 126, 234, 0.05);
+  overflow-x: auto;
 }
 
 .hourly-chart {
   display: flex;
-  align-items: end;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: space-evenly;
   gap: 0.75rem;
   height: 10rem;
-  overflow-x: auto;
-  min-width: 500px;
+  min-width: 600px;
   padding: 1rem 0 1.5rem 0;
+  position: relative;
 }
 
 .hourly-bar {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
-  min-width: 50px;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 60px;
+  max-width: 80px;
+  height: 100%;
 }
 
 .hourly-bar-fill {
   width: 100%;
+  max-width: 50px;
   border-radius: 4px 4px 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
   min-height: 8%;
+  position: relative;
 }
 
 .hourly-bar-fill.level-0 { background: #d1d5db; }
@@ -284,6 +296,8 @@
   font-weight: 600;
   color: #1f2937;
   text-align: center;
+  white-space: nowrap;
+  margin-top: 0.5rem;
 }
 
 .hourly-legend {
