@@ -6,10 +6,12 @@
     {
       "source": "/api/(.*)",
       "destination": "/api/index.py"
-    },
+    }
+  ],
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/((?!api).*)$",
+      "dest": "/index.html"
     }
   ]
 }
