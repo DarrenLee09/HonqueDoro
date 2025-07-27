@@ -1076,76 +1076,142 @@
   font-weight: 500;
 }
 
-/* Insights Section */
-.insights-section {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-}
-
-.insights-section h2 {
-  margin: 0 0 1.5rem 0;
-  color: #2c3e50;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.insight-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+/* Productivity Insights Section */
+.productivity-insights-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border-radius: 25px;
+  padding: 2.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  border: 2px solid rgba(102, 126, 234, 0.1);
   margin-bottom: 2rem;
 }
 
-.insight-card {
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 15px;
+/* Insights Section */
+.insights-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border-radius: 25px;
+  padding: 2.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
   border: 2px solid rgba(102, 126, 234, 0.1);
-  transition: all 0.3s ease;
+}
+
+.insights-section h2 {
+  margin: 0 0 2rem 0;
+  color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.insight-card {
+  position: relative;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  border: 2px solid rgba(102, 126, 234, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.insight-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.insight-card:hover::before {
+  opacity: 1;
 }
 
 .insight-card.highlight {
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
-  border-color: rgba(255, 193, 7, 0.3);
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.15));
+  border-color: rgba(255, 193, 7, 0.4);
+  box-shadow: 0 15px 35px rgba(255, 193, 7, 0.2);
+}
+
+.insight-card.highlight::before {
+  background: linear-gradient(90deg, #ffc107, #ff9800);
+  opacity: 1;
 }
 
 .insight-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.15);
-  border-color: rgba(102, 126, 234, 0.3);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.4);
 }
 
 .insight-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.1);
 }
 
 .insight-icon {
-  font-size: 1.5rem;
+  font-size: 2rem;
+  margin-right: 1rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.insight-card:hover .insight-icon {
+  background: rgba(102, 126, 234, 0.2);
+  transform: scale(1.1);
 }
 
 .insight-title {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #2c3e50;
+  letter-spacing: 0.5px;
+}
+
+.insight-content {
+  text-align: center;
 }
 
 .insight-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #667eea;
-  margin-bottom: 0.5rem;
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
 }
 
 .insight-desc {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #666;
-  line-height: 1.4;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 /* Hourly Productivity Chart */
@@ -1981,5 +2047,402 @@
 
   .hourly-efficiency {
     font-size: 0.55rem;
+  }
+}
+
+
+/* Improved Hourly Productivity Chart */
+.hourly-chart-section {
+  margin-top: 2rem;
+}
+
+.hourly-chart-section h3 {
+  margin: 0 0 2rem 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hourly-chart-container {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 2rem;
+  border: 2px solid rgba(102, 126, 234, 0.1);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+}
+
+.hourly-bars-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: rgba(102, 126, 234, 0.03);
+  border-radius: 15px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.hourly-bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 200px;
+  position: relative;
+}
+
+.hourly-bar-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.hourly-chart-container .hourly-bar {
+  position: relative;
+  width: 40px;
+  min-height: 8px;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.hourly-chart-container .hourly-bar.empty {
+  background: #e9ecef;
+  border: 2px solid #dee2e6;
+}
+
+.hourly-chart-container .hourly-bar.low {
+  background: linear-gradient(180deg, #28a745, #20c997);
+  box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+}
+
+.hourly-chart-container .hourly-bar.medium {
+  background: linear-gradient(180deg, #ffc107, #fd7e14);
+  box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+}
+
+.hourly-chart-container .hourly-bar.high {
+  background: linear-gradient(180deg, #667eea, #764ba2);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.hourly-chart-container .hourly-bar:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+}
+
+.hourly-chart-container .hourly-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.2), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.hourly-chart-container .hourly-bar:hover::after {
+  opacity: 1;
+}
+
+.hourly-chart-container .hourly-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.hourly-efficiency-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #2c3e50;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.hourly-chart-container .hourly-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2c3e50;
+  text-align: center;
+  background: rgba(102, 126, 234, 0.1);
+  padding: 0.5rem;
+  border-radius: 8px;
+  width: 100%;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.legend-color {
+  width: 20px;
+  height: 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.legend-color.empty {
+  background: #e9ecef;
+}
+
+.legend-color.low {
+  background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+.legend-color.medium {
+  background: linear-gradient(90deg, #ffc107, #fd7e14);
+}
+
+.legend-color.high {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+/* Responsive Design for New Insights */
+@media (max-width: 768px) {
+  .insights-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .insight-card {
+    padding: 1.5rem;
+  }
+  
+  .insight-value {
+    font-size: 2rem;
+  }
+  
+  .hourly-bars-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .hourly-bar-item {
+    height: 150px;
+  }
+  
+  .hourly-chart-container .hourly-bar {
+    width: 30px;
+  }
+  
+  .chart-legend {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .hourly-bars-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .hourly-bar-item {
+    height: 120px;
+  }
+}
+
+
+/* Interactive Features for Productivity Insights */
+.hourly-chart-container .hourly-bar.selected {
+  transform: translateY(-4px) scale(1.1);
+  box-shadow: 0 20px 40px rgba(102, 126, 234, 0.5);
+  border: 3px solid #667eea;
+}
+
+.hour-detail-panel {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  animation: slideIn 0.3s ease;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.detail-header h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.close-detail-btn {
+  background: #e74c3c;
+  border: none;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-detail-btn:hover {
+  background: #c0392b;
+  transform: scale(1.1);
+}
+
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.detail-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.detail-label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.detail-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.detail-recommendation {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
+  border: 2px solid rgba(255, 193, 7, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.detail-recommendation strong {
+  color: #ff9800;
+  margin-right: 0.5rem;
+}
+
+/* Responsive adjustments for interactive features */
+@media (max-width: 768px) {
+  .hour-detail-panel {
+    padding: 1rem;
+  }
+  
+  .detail-stats {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .detail-stat {
+    padding: 0.75rem;
+  }
+  
+  .detail-value {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .detail-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  
+  .detail-header h4 {
+    text-align: center;
+  }
+  
+  .close-detail-btn {
+    align-self: center;
+  }
+  
+  .detail-recommendation {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    text-align: center;
   }
 }

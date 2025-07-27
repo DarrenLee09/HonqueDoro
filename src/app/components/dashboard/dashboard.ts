@@ -24,6 +24,7 @@ export class Dashboard implements OnInit {
   showGoalEditor = false;
   showMonthlyGoalEditor = signal(false);
   newMonthlyGoalTarget = signal<number>(160);
+  selectedHourIndex = signal<number>(-1);
 
   // Signals for dashboard data
   todayStats = signal({
@@ -74,17 +75,70 @@ export class Dashboard implements OnInit {
 
   // Note: Historical sessions are now managed by SessionTrackingService
 
-  // Productivity by time of day
-  hourlyProductivity = signal([
-    { hour: '6-8', sessions: 2, efficiency: 85 },
-    { hour: '8-10', sessions: 8, efficiency: 92 },
-    { hour: '10-12', sessions: 12, efficiency: 88 },
-    { hour: '12-14', sessions: 6, efficiency: 75 },
-    { hour: '14-16', sessions: 10, efficiency: 90 },
-    { hour: '16-18', sessions: 8, efficiency: 82 },
-    { hour: '18-20', sessions: 4, efficiency: 70 },
-    { hour: '20-22', sessions: 2, efficiency: 65 }
-  ]);
+  // Productivity by time of day - computed from real data with demo fallback
+  hourlyProductivity = computed(() => {
+    const sessions = this.sessionTrackingService.getSessions()();
+    const hourlyData = [
+      { hour: '6-8 AM', label: 'Early Morning', sessions: 0, efficiency: 0, totalDuration: 0 },
+      { hour: '8-10 AM', label: 'Morning', sessions: 0, efficiency: 0, totalDuration: 0 },
+      { hour: '10-12 PM', label: 'Late Morning', sessions: 0, efficiency: 0, totalDuration: 0 },
+      { hour: '12-2 PM', label: 'Afternoon', sessions: 0, efficiency: 0, totalDuration: 0 },
+      { hour: '2-4 PM', label: 'Mid Afternoon', sessions: 0, efficiency: 0, totalDuration: 0 },
+      { hour: '4-6 PM', label: 'Late Afternoon', sessions: 0, efficiency: 0, totalDuration: 0 },
+      { hour: '6-8 PM', label: 'Evening', sessions: 0, efficiency: 0, totalDuration: 0 },
+      { hour: '8-10 PM', label: 'Night', sessions: 0, efficiency: 0, totalDuration: 0 }
+    ];
+
+    // Only count work sessions for productivity analysis
+    const workSessions = sessions.filter(s => s.type === 'Work');
+    let hasRealData = workSessions.length > 0;
+    
+    workSessions.forEach(session => {
+      const hour = session.date.getHours();
+      let hourIndex = -1;
+      
+      if (hour >= 6 && hour < 8) hourIndex = 0;
+      else if (hour >= 8 && hour < 10) hourIndex = 1;
+      else if (hour >= 10 && hour < 12) hourIndex = 2;
+      else if (hour >= 12 && hour < 14) hourIndex = 3;
+      else if (hour >= 14 && hour < 16) hourIndex = 4;
+      else if (hour >= 16 && hour < 18) hourIndex = 5;
+      else if (hour >= 18 && hour < 20) hourIndex = 6;
+      else if (hour >= 20 && hour < 22) hourIndex = 7;
+      
+      if (hourIndex >= 0) {
+        hourlyData[hourIndex].sessions++;
+        hourlyData[hourIndex].totalDuration += session.duration;
+      }
+    });
+
+    // If no real data exists, show demo data for better UX
+    if (!hasRealData) {
+      const demoData = [
+        { sessions: 1, totalDuration: 20 },   // 6-8 AM: Light activity
+        { sessions: 3, totalDuration: 75 },   // 8-10 AM: Good morning productivity  
+        { sessions: 4, totalDuration: 100 },  // 10-12 PM: Peak morning
+        { sessions: 2, totalDuration: 45 },   // 12-2 PM: Post-lunch dip
+        { sessions: 3, totalDuration: 70 },   // 2-4 PM: Afternoon recovery
+        { sessions: 2, totalDuration: 50 },   // 4-6 PM: Late afternoon
+        { sessions: 1, totalDuration: 25 },   // 6-8 PM: Evening wind down
+        { sessions: 0, totalDuration: 0 }     // 8-10 PM: Rest time
+      ];
+      
+      demoData.forEach((demo, index) => {
+        hourlyData[index].sessions = demo.sessions;
+        hourlyData[index].totalDuration = demo.totalDuration;
+      });
+    }
+
+    // Calculate efficiency based on average session duration vs expected (25min)
+    return hourlyData.map(slot => ({
+      ...slot,
+      efficiency: slot.sessions > 0 
+        ? Math.min(Math.round((slot.totalDuration / slot.sessions / 25) * 100), 100)
+        : 0
+    }));
+  });
 
   // Additional computed properties
   maxWeeklySessions = computed(() => {
@@ -114,9 +168,25 @@ export class Dashboard implements OnInit {
   });
 
   productivityTrend = computed(() => {
-    const weekly = this.weeklyData();
-    const firstHalf = weekly.slice(0, 3).reduce((sum, day) => sum + day.sessions, 0);
-    const secondHalf = weekly.slice(4, 7).reduce((sum, day) => sum + day.sessions, 0);
+    const weeklySessions = this.sessionTrackingService.getWeeklySessions().filter(s => s.type === 'Work');
+    
+    // Group sessions by day of the week
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Monday
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    const dailySessions = Array(7).fill(0);
+    weeklySessions.forEach(session => {
+      const daysDiff = Math.floor((session.date.getTime() - startOfWeek.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysDiff >= 0 && daysDiff < 7) {
+        dailySessions[daysDiff]++;
+      }
+    });
+    
+    // Compare first half (Mon-Wed) vs second half (Thu-Sun)
+    const firstHalf = dailySessions.slice(0, 3).reduce((sum, sessions) => sum + sessions, 0);
+    const secondHalf = dailySessions.slice(3, 7).reduce((sum, sessions) => sum + sessions, 0);
     const trend = secondHalf - firstHalf;
     
     return {
@@ -184,9 +254,82 @@ export class Dashboard implements OnInit {
     return trend.direction === 'up' ? '#4CAF50' : trend.direction === 'down' ? '#f44336' : '#ff9800';
   }
 
+  // Additional productivity insights
+  bestPerformingDay = computed(() => {
+    const weeklySessions = this.sessionTrackingService.getWeeklySessions().filter(s => s.type === 'Work');
+    const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const dailyCounts = Array(7).fill(0);
+    
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Monday
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    weeklySessions.forEach(session => {
+      const daysDiff = Math.floor((session.date.getTime() - startOfWeek.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysDiff >= 0 && daysDiff < 7) {
+        dailyCounts[daysDiff]++;
+      }
+    });
+    
+    const maxSessions = Math.max(...dailyCounts);
+    const bestDayIndex = dailyCounts.indexOf(maxSessions);
+    
+    return {
+      day: dayNames[bestDayIndex],
+      sessions: maxSessions,
+      dayIndex: bestDayIndex
+    };
+  });
+
+  currentStreak = computed(() => {
+    const sessions = this.sessionTrackingService.getSessions()().filter(s => s.type === 'Work');
+    if (sessions.length === 0) return 0;
+    
+    // Sort sessions by date (newest first)
+    const sortedSessions = sessions.sort((a, b) => b.date.getTime() - a.date.getTime());
+    
+    let streak = 0;
+    let currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    
+    for (let i = 0; i < 30; i++) { // Check last 30 days
+      const dayHasSessions = sortedSessions.some(session => {
+        const sessionDate = new Date(session.date);
+        sessionDate.setHours(0, 0, 0, 0);
+        return sessionDate.getTime() === currentDate.getTime();
+      });
+      
+      if (dayHasSessions) {
+        streak++;
+      } else if (streak > 0) {
+        break; // Streak is broken
+      }
+      
+      currentDate.setDate(currentDate.getDate() - 1);
+    }
+    
+    return streak;
+  });
+
+  weeklyAverage = computed(() => {
+    const sessions = this.sessionTrackingService.getSessions()().filter(s => s.type === 'Work');
+    const fourWeeksAgo = new Date();
+    fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+    
+    const recentSessions = sessions.filter(s => s.date >= fourWeeksAgo);
+    return Math.round(recentSessions.length / 4 * 10) / 10; // 4 weeks average
+  });
+
+  // Computed property for demo data notice
+  showDemoNotice = computed(() => {
+    const sessions = this.sessionTrackingService.getSessions()();
+    return sessions.filter(s => s.type === 'Work').length === 0;
+  });
+
   constructor(
     private http: HttpClient,
-    private sessionTrackingService: SessionTrackingService
+    public sessionTrackingService: SessionTrackingService
   ) {}
 
   ngOnInit(): void {
@@ -293,9 +436,16 @@ export class Dashboard implements OnInit {
   addSessionToDay(dayIndex: number, sessionType: 'Work' | 'Break' = 'Work'): void {
     const sessionDuration = sessionType === 'Work' ? 25 : 5;
     
-    // Add to session tracking service
+    // Calculate the actual date for the day being modified
+    const today = new Date();
+    const currentDayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1; // Convert Sunday=0 to Saturday=6
+    const daysDifference = dayIndex - currentDayIndex;
+    const sessionDate = new Date(today);
+    sessionDate.setDate(today.getDate() + daysDifference);
+    
+    // Add to session tracking service with the correct date
     this.sessionTrackingService.addSession({
-      date: new Date(),
+      date: sessionDate,
       type: sessionType,
       duration: sessionDuration
     });
@@ -319,20 +469,18 @@ export class Dashboard implements OnInit {
       }));
     }
 
-    // Add to recent sessions
+    // Add to recent sessions with correct timestamp
     this.recentSessions.update(sessions => [
       {
         type: sessionType,
         duration: sessionDuration,
-        completedAt: new Date()
+        completedAt: sessionDate
       },
       ...sessions.slice(0, 9) // Keep only 10 most recent
     ]);
 
     // Update today's stats if it's today
-    const today = new Date().getDay();
-    const todayIndex = today === 0 ? 6 : today - 1;
-    if (dayIndex === todayIndex && sessionType === 'Work') {
+    if (dayIndex === currentDayIndex && sessionType === 'Work') {
       this.todayStats.update(stats => ({
         ...stats,
         completedSessions: stats.completedSessions + 1,
@@ -497,6 +645,11 @@ export class Dashboard implements OnInit {
     const maxDots = 5;
     const dotCount = Math.min(sessionCount, maxDots);
     return Array.from({ length: dotCount }, (_, i) => i);
+  }
+
+  // Interactive features for productivity insights
+  selectHour(hourIndex: number): void {
+    this.selectedHourIndex.set(hourIndex);
   }
 
   // Load data from localStorage on init

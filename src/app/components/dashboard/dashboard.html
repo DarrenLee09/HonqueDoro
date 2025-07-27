@@ -308,59 +308,289 @@
   </div>
 
   <!-- Productivity Insights -->
-  <div class="insights-section">
-    <h2>🔍 Productivity Insights</h2>
+  <div class="productivity-insights-section">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="p-2 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
+        Productivity Insights
+      </h2>
+    </div>
     
-    <!-- Best Time Analysis -->
-    <div class="insight-cards">
-      <div class="insight-card highlight">
-        <div class="insight-header">
-          <span class="insight-icon">⭐</span>
-          <span class="insight-title">Peak Productivity</span>
-        </div>
-        <div class="insight-content">
-          <div class="insight-value">{{ bestProductivityHour().hour }}</div>
-          <div class="insight-desc">{{ bestProductivityHour().sessions }} sessions with {{ bestProductivityHour().efficiency }}% efficiency</div>
+    <!-- Demo Data Notice -->
+    <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg" *ngIf="showDemoNotice()">
+      <div class="flex items-center gap-2 text-amber-700">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+        </svg>
+        <span class="font-medium">Demo Data</span>
+      </div>
+      <p class="text-sm text-amber-600 mt-1">Complete some timer sessions to see your real productivity patterns. The data below shows example patterns.</p>
+    </div>
+    
+    <!-- Insight Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Peak Productivity Time -->
+      <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-primary-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-amber-400/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="relative">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-gradient-to-r from-amber-400 to-orange-500 rounded-lg">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            </div>
+            <span class="font-semibold text-gray-800">Peak Productivity</span>
+          </div>
+          <div class="text-3xl font-bold text-gray-900 mb-2">{{ bestProductivityHour().hour }}</div>
+          <div class="text-sm text-gray-600" *ngIf="bestProductivityHour().sessions > 0">
+            {{ bestProductivityHour().sessions }} sessions • {{ bestProductivityHour().efficiency }}% efficiency
+          </div>
+          <div class="text-sm text-gray-500" *ngIf="bestProductivityHour().sessions === 0">
+            No sessions recorded yet
+          </div>
         </div>
       </div>
       
-      <!-- Trend Analysis -->
-      <div class="insight-card">
-        <div class="insight-header">
-          <span class="insight-icon">{{ getTrendIcon() }}</span>
-          <span class="insight-title">Weekly Trend</span>
-        </div>
-        <div class="insight-content">
-          <div class="insight-value" [style.color]="getTrendColor()">
+      <!-- Weekly Trend -->
+      <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-primary-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-primary-400/10 to-primary-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="relative">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 rounded-lg" [ngClass]="{
+              'bg-gradient-to-r from-green-400 to-green-600': productivityTrend().direction === 'up',
+              'bg-gradient-to-r from-red-400 to-red-600': productivityTrend().direction === 'down',
+              'bg-gradient-to-r from-gray-400 to-gray-600': productivityTrend().direction === 'stable'
+            }">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" *ngIf="productivityTrend().direction === 'up'">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" *ngIf="productivityTrend().direction === 'down'">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+              </svg>
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" *ngIf="productivityTrend().direction === 'stable'">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <span class="font-semibold text-gray-800">Weekly Trend</span>
+          </div>
+          <div class="text-3xl font-bold mb-2" [ngClass]="{
+            'text-green-600': productivityTrend().direction === 'up',
+            'text-red-600': productivityTrend().direction === 'down',
+            'text-gray-600': productivityTrend().direction === 'stable'
+          }">
             {{ productivityTrend().direction | titlecase }}
           </div>
-          <div class="insight-desc" *ngIf="productivityTrend().change > 0">
+          <div class="text-sm text-gray-600" *ngIf="productivityTrend().change > 0">
             {{ productivityTrend().change }} sessions {{ productivityTrend().direction === 'up' ? 'increase' : 'decrease' }}
           </div>
-          <div class="insight-desc" *ngIf="productivityTrend().change === 0">
+          <div class="text-sm text-gray-500" *ngIf="productivityTrend().change === 0">
             Consistent performance this week
           </div>
+        </div>
+      </div>
+
+      <!-- Best Performing Day -->
+      <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-primary-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="relative">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <span class="font-semibold text-gray-800">Best Day</span>
+          </div>
+          <div class="text-3xl font-bold text-gray-900 mb-2">{{ bestPerformingDay().day }}</div>
+          <div class="text-sm text-gray-600" *ngIf="bestPerformingDay().sessions > 0">
+            {{ bestPerformingDay().sessions }} sessions this week
+          </div>
+          <div class="text-sm text-gray-500" *ngIf="bestPerformingDay().sessions === 0">
+            No sessions this week
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Streak -->
+      <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-primary-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="relative">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-gradient-to-r from-orange-400 to-red-500 rounded-lg">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14l1.5 1.5L11 17l-1.121-.879z" />
+              </svg>
+            </div>
+            <span class="font-semibold text-gray-800">Current Streak</span>
+          </div>
+          <div class="text-3xl font-bold text-gray-900 mb-2">{{ currentStreak() }}</div>
+          <div class="text-sm text-gray-600">
+            {{ currentStreak() === 1 ? 'day' : 'days' }} of consistent work
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Average -->
+      <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-primary-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-400/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="relative">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-gradient-to-r from-purple-400 to-purple-600 rounded-lg">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <span class="font-semibold text-gray-800">4-Week Average</span>
+          </div>
+          <div class="text-3xl font-bold text-gray-900 mb-2">{{ weeklyAverage() }}</div>
+          <div class="text-sm text-gray-600">sessions per week</div>
+        </div>
+      </div>
+
+      <!-- Today's Progress -->
+      <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-primary-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="relative">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-gradient-to-r from-green-400 to-emerald-500 rounded-lg">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <span class="font-semibold text-gray-800">Today's Progress</span>
+          </div>
+          <div class="text-3xl font-bold text-gray-900 mb-2">{{ sessionTrackingService.getTodayWorkSessions() }}</div>
+          <div class="text-sm text-gray-600">sessions completed today</div>
         </div>
       </div>
     </div>
 
     <!-- Hourly Productivity Chart -->
-    <div class="hourly-chart">
-      <h3>Hourly Productivity Pattern</h3>
-      <div class="hourly-bars-container">
-        <div 
-          *ngFor="let hour of hourlyProductivity()" 
-          class="hourly-bar-item"
-        >
+    <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-primary-100 shadow-lg">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-800">Hourly Productivity Pattern</h3>
+      </div>
+      
+      <div class="space-y-6">
+        <!-- Chart -->
+        <div class="flex items-end justify-center gap-2 h-40 p-4 bg-gray-50/50 rounded-xl">
           <div 
-            class="hourly-bar" 
-            [style.height.%]="getHourlyBarHeight(hour.sessions)"
-            [style.background]="'linear-gradient(180deg, rgba(102, 126, 234, ' + (hour.efficiency/100) + '), rgba(118, 75, 162, ' + (hour.efficiency/100) + '))'"
+            *ngFor="let hour of hourlyProductivity(); let i = index" 
+            class="flex flex-col items-center gap-2 cursor-pointer group"
+            [attr.title]="hour.sessions + ' sessions in ' + hour.hour + ' timeframe'"
+            (click)="selectHour(i)"
           >
-            <div class="hourly-value" *ngIf="hour.sessions > 0">{{ hour.sessions }}</div>
+            <!-- Bar -->
+            <div class="relative flex flex-col justify-end" style="height: 120px;">
+              <div 
+                class="w-8 rounded-t-lg transition-all duration-300 group-hover:scale-110 relative overflow-hidden" 
+                [style.height.%]="getHourlyBarHeight(hour.sessions)"
+                [ngClass]="{
+                  'bg-gray-200': hour.sessions === 0,
+                  'bg-gradient-to-t from-green-400 to-green-500 shadow-lg shadow-green-200': hour.sessions > 0 && hour.sessions <= 2,
+                  'bg-gradient-to-t from-yellow-400 to-orange-500 shadow-lg shadow-yellow-200': hour.sessions > 2 && hour.sessions <= 5,
+                  'bg-gradient-to-t from-purple-500 to-indigo-600 shadow-lg shadow-purple-200': hour.sessions > 5,
+                  'ring-2 ring-primary-500 ring-offset-2': selectedHourIndex() === i
+                }"
+              >
+                <!-- Value display -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-xs font-bold" *ngIf="hour.sessions > 0">
+                  <div>{{ hour.sessions }}</div>
+                  <div class="text-xs opacity-90">{{ hour.efficiency }}%</div>
+                </div>
+                
+                <!-- Shine effect -->
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 opacity-0 group-hover:opacity-100 group-hover:animate-pulse"></div>
+              </div>
+            </div>
+            
+            <!-- Label -->
+            <div class="text-xs font-medium text-gray-600 text-center">{{ hour.hour }}</div>
           </div>
-          <div class="hourly-label">{{ hour.hour }}</div>
-          <div class="hourly-efficiency">{{ hour.efficiency }}%</div>
+        </div>
+
+        <!-- Detail Panel -->
+        <div class="bg-gradient-to-r from-primary-50 to-indigo-50 rounded-xl p-6 border border-primary-100" *ngIf="selectedHourIndex() !== -1">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-lg font-bold text-gray-800">{{ hourlyProductivity()[selectedHourIndex()].hour }} Time Slot</h4>
+            <button 
+              class="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-full transition-colors"
+              (click)="selectedHourIndex.set(-1)"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <div class="grid grid-cols-3 gap-4 mb-4">
+            <div class="text-center p-3 bg-white rounded-lg border">
+              <div class="text-2xl font-bold text-primary-600">{{ hourlyProductivity()[selectedHourIndex()].sessions }}</div>
+              <div class="text-sm text-gray-500">Sessions</div>
+            </div>
+            <div class="text-center p-3 bg-white rounded-lg border">
+              <div class="text-2xl font-bold text-primary-600">{{ hourlyProductivity()[selectedHourIndex()].efficiency }}%</div>
+              <div class="text-sm text-gray-500">Efficiency</div>
+            </div>
+            <div class="text-center p-3 bg-white rounded-lg border">
+              <div class="text-2xl font-bold text-primary-600">{{ formatFocusTime(hourlyProductivity()[selectedHourIndex()].totalDuration) }}</div>
+              <div class="text-sm text-gray-500">Total Time</div>
+            </div>
+          </div>
+          
+          <div class="p-4 bg-white rounded-lg border-l-4 border-primary-500" *ngIf="hourlyProductivity()[selectedHourIndex()].sessions > 0">
+            <div class="flex items-start gap-2">
+              <div class="p-1 bg-primary-100 rounded">
+                <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div>
+                <div class="font-semibold text-gray-800 mb-1">Productivity Insight</div>
+                <div class="text-sm text-gray-600">
+                  <span *ngIf="hourlyProductivity()[selectedHourIndex()].efficiency >= 90">
+                    🎯 Excellent productivity! This is your peak performance window - perfect for important tasks.
+                  </span>
+                  <span *ngIf="hourlyProductivity()[selectedHourIndex()].efficiency >= 75 && hourlyProductivity()[selectedHourIndex()].efficiency < 90">
+                    ✅ Good productivity window. This is a reliable time for focused work sessions.
+                  </span>
+                  <span *ngIf="hourlyProductivity()[selectedHourIndex()].efficiency < 75 && hourlyProductivity()[selectedHourIndex()].sessions > 0">
+                    ⚠️ Lower efficiency detected. Consider scheduling breaks or lighter tasks during this time.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Legend -->
+        <div class="flex flex-wrap justify-center gap-4 text-sm">
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-gray-200 rounded"></div>
+            <span class="text-gray-600">No sessions</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-gradient-to-t from-green-400 to-green-500 rounded"></div>
+            <span class="text-gray-600">1-2 sessions</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-gradient-to-t from-yellow-400 to-orange-500 rounded"></div>
+            <span class="text-gray-600">3-5 sessions</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-gradient-to-t from-purple-500 to-indigo-600 rounded"></div>
+            <span class="text-gray-600">6+ sessions</span>
+          </div>
         </div>
       </div>
     </div>
@@ -389,61 +619,6 @@
     </div>
   </div>
 
-  <!-- Goals & Achievements Section -->
-  <div class="goals-section">
-    <h2>🎯 Goals & Achievements</h2>
-    
-    <!-- Quick Goals Card -->
-    <div class="goals-grid">
-      <div class="goal-card">
-        <div class="goal-header">
-          <span class="goal-icon">🎯</span>
-          <span class="goal-title">Weekly Goal</span>
-        </div>
-        <div class="goal-progress">
-          <div class="goal-numbers">
-            <span class="current">{{ weeklyGoal().completed }}</span>
-            <span class="separator">/</span>
-            <span class="target">{{ weeklyGoal().target }}</span>
-          </div>
-          <div class="goal-bar">
-            <div class="goal-fill" [style.width.%]="weeklyProgressPercentage()"></div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="goal-card">
-        <div class="goal-header">
-          <span class="goal-icon">📅</span>
-          <span class="goal-title">Monthly Goal</span>
-        </div>
-        <div class="goal-progress">
-          <div class="goal-numbers">
-            <span class="current">{{ monthlyGoal().completed }}</span>
-            <span class="separator">/</span>
-            <span class="target">{{ monthlyGoal().target }}</span>
-          </div>
-          <div class="goal-bar">
-            <div class="goal-fill" [style.width.%]="(monthlyGoal().completed / monthlyGoal().target) * 100"></div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="achievement-card">
-        <div class="achievement-header">
-          <span class="achievement-icon">🏆</span>
-          <span class="achievement-title">Recent Achievement</span>
-        </div>
-        <div class="achievement-content">
-          <div class="achievement-badge">🔥</div>
-          <div class="achievement-text">
-            <div class="achievement-name">Weekly Warrior</div>
-            <div class="achievement-desc">Completed 7 days in a row</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Focus Breakdown Section -->
   <div class="focus-breakdown-section">
@@ -504,43 +679,6 @@
     </div>
   </div>
 
-  <!-- Quick Stats Cards -->
-  <div class="quick-stats-section">
-    <h2>⚡ Quick Stats</h2>
-    <div class="quick-stats-grid">
-      <div class="quick-stat-card">
-        <div class="quick-stat-icon">⏰</div>
-        <div class="quick-stat-content">
-          <div class="quick-stat-number">{{ formatFocusTime(todayStats().totalWorkTime) }}</div>
-          <div class="quick-stat-label">Today's Focus</div>
-        </div>
-      </div>
-      
-      <div class="quick-stat-card">
-        <div class="quick-stat-icon">📈</div>
-        <div class="quick-stat-content">
-          <div class="quick-stat-number">{{ weeklyStats().averageDaily }}</div>
-          <div class="quick-stat-label">Daily Average</div>
-        </div>
-      </div>
-      
-      <div class="quick-stat-card">
-        <div class="quick-stat-icon">🏃</div>
-        <div class="quick-stat-content">
-          <div class="quick-stat-number">{{ todayStats().currentStreak }}</div>
-          <div class="quick-stat-label">Current Streak</div>
-        </div>
-      </div>
-      
-      <div class="quick-stat-card">
-        <div class="quick-stat-icon">🎯</div>
-        <div class="quick-stat-content">
-          <div class="quick-stat-number">{{ weeklyStats().activeDays }}/7</div>
-          <div class="quick-stat-label">Active Days</div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Quick Actions -->
   <div class="actions-section">
