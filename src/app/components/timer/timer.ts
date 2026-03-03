@@ -110,7 +110,7 @@ export class Timer implements OnInit, OnDestroy {
   });
 
   sortedTasks = computed(() => {
-    return this.tasks().sort((a, b) => {
+    return [...this.tasks()].sort((a, b) => {
       // First sort by pinned status (pinned tasks on top)
       if (a.pinned !== b.pinned) {
         return b.pinned ? 1 : -1;

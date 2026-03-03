@@ -8,6 +8,9 @@ from typing import Dict, List, Optional
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:4200"])
 
+MAX_DURATION_MINUTES = 180
+MAX_NOTES_LENGTH = 500
+
 # In-memory storage (in production, use a real database)
 sessions = []
 statistics = {
@@ -57,6 +60,64 @@ def calculate_remaining_seconds(session):
     remaining = total_duration - elapsed
     return max(0, remaining)
 
+def calculate_elapsed_seconds(session):
+    """Calculate elapsed time including currently running time"""
+    total_duration = session["durationMinutes"] * 60
+    return max(0, total_duration - calculate_remaining_seconds(session))
+
+def calculate_progress_percentage(session):
+    total_seconds = session["durationMinutes"] * 60
+    if total_seconds <= 0:
+        return 0
+    return min(100, (calculate_elapsed_seconds(session) / total_seconds) * 100)
+
+def serialize_session(session):
+    remaining = calculate_remaining_seconds(session)
+    return {
+        "id": session["id"],
+        "type": session["type"],
+        "status": session["status"],
+        "durationMinutes": session["durationMinutes"],
+        "remainingSeconds": remaining,
+        "elapsedSeconds": calculate_elapsed_seconds(session),
+        "estimatedEndTime": (datetime.now(timezone.utc) + timedelta(seconds=remaining)).isoformat().replace('+00:00', 'Z') if session["status"] == SessionStatus.ACTIVE and remaining > 0 else None,
+        "progressPercentage": calculate_progress_percentage(session),
+        "startTime": session["startTime"],
+        "lastUpdated": session["lastUpdated"],
+        "notes": session["notes"]
+    }
+
+def validate_start_session_payload(data):
+    """Validate and normalize session start payload"""
+    if not isinstance(data, dict):
+        return None, jsonify({"error": "Invalid JSON payload"}), 400
+
+    session_type = data.get("type", SessionType.WORK)
+    if session_type not in [SessionType.WORK, SessionType.SHORT_BREAK, SessionType.LONG_BREAK]:
+        return None, jsonify({"error": "Invalid session type"}), 400
+
+    try:
+        duration_minutes = int(data.get("durationMinutes", 25))
+    except (TypeError, ValueError):
+        return None, jsonify({"error": "durationMinutes must be an integer"}), 400
+
+    if duration_minutes < 1 or duration_minutes > MAX_DURATION_MINUTES:
+        return None, jsonify({"error": f"durationMinutes must be between 1 and {MAX_DURATION_MINUTES}"}), 400
+
+    notes = data.get("notes", "") or ""
+    if not isinstance(notes, str):
+        return None, jsonify({"error": "notes must be a string"}), 400
+
+    notes = notes.strip()
+    if len(notes) > MAX_NOTES_LENGTH:
+        return None, jsonify({"error": f"notes must be less than {MAX_NOTES_LENGTH + 1} characters"}), 400
+
+    return {
+        "type": session_type,
+        "durationMinutes": duration_minutes,
+        "notes": notes
+    }, None, None
+
 def update_session_elapsed(session):
     """Update elapsed time for an active session"""
     if session["status"] == SessionStatus.ACTIVE and session["lastUpdated"]:
@@ -66,7 +127,10 @@ def update_session_elapsed(session):
 
 @app.route('/api/sessions/start', methods=['POST'])
 def start_session():
-    data = request.get_json()
+    data = request.get_json(silent=True)
+    payload, error_response, status_code = validate_start_session_payload(data)
+    if error_response:
+        return error_response, status_code
     
     # Check if there's already an active session
     active_session = get_active_session()
@@ -75,32 +139,20 @@ def start_session():
     
     session = {
         "id": len(sessions) + 1,
-        "type": data.get("type", SessionType.WORK),
-        "durationMinutes": data.get("durationMinutes", 25),
+        "type": payload["type"],
+        "durationMinutes": payload["durationMinutes"],
         "startTime": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
         "lastUpdated": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
         "status": SessionStatus.ACTIVE,
         "isCompleted": False,
-        "notes": data.get("notes", ""),
+        "notes": payload["notes"],
         "elapsedSeconds": 0,
         "pausedAt": None,
         "endTime": None
     }
     
     sessions.append(session)
-    return jsonify({
-        "id": session["id"],
-        "type": session["type"],
-        "status": session["status"],
-        "durationMinutes": session["durationMinutes"],
-        "remainingSeconds": calculate_remaining_seconds(session),
-        "elapsedSeconds": session["elapsedSeconds"],
-        "estimatedEndTime": (datetime.now(timezone.utc) + timedelta(minutes=session["durationMinutes"])).isoformat().replace('+00:00', 'Z'),
-        "progressPercentage": 0,
-        "startTime": session["startTime"],
-        "lastUpdated": session["lastUpdated"],
-        "notes": session["notes"]
-    })
+    return jsonify(serialize_session(session))
 
 @app.route('/api/sessions/pause/<int:session_id>', methods=['POST'])
 def pause_session(session_id):
@@ -117,19 +169,7 @@ def pause_session(session_id):
     session["pausedAt"] = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
     session["lastUpdated"] = None
     
-    return jsonify({
-        "id": session["id"],
-        "type": session["type"],
-        "status": session["status"],
-        "durationMinutes": session["durationMinutes"],
-        "remainingSeconds": calculate_remaining_seconds(session),
-        "elapsedSeconds": session["elapsedSeconds"],
-        "estimatedEndTime": None,
-        "progressPercentage": (session["elapsedSeconds"] / (session["durationMinutes"] * 60)) * 100,
-        "startTime": session["startTime"],
-        "lastUpdated": session["lastUpdated"],
-        "notes": session["notes"]
-    })
+    return jsonify(serialize_session(session))
 
 @app.route('/api/sessions/resume/<int:session_id>', methods=['POST'])
 def resume_session(session_id):
@@ -145,19 +185,7 @@ def resume_session(session_id):
     session["lastUpdated"] = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
     session["pausedAt"] = None
     
-    return jsonify({
-        "id": session["id"],
-        "type": session["type"],
-        "status": session["status"],
-        "durationMinutes": session["durationMinutes"],
-        "remainingSeconds": calculate_remaining_seconds(session),
-        "elapsedSeconds": session["elapsedSeconds"],
-        "estimatedEndTime": (datetime.now(timezone.utc) + timedelta(seconds=calculate_remaining_seconds(session))).isoformat().replace('+00:00', 'Z'),
-        "progressPercentage": (session["elapsedSeconds"] / (session["durationMinutes"] * 60)) * 100,
-        "startTime": session["startTime"],
-        "lastUpdated": session["lastUpdated"],
-        "notes": session["notes"]
-    })
+    return jsonify(serialize_session(session))
 
 @app.route('/api/sessions/complete/<int:session_id>', methods=['POST'])
 def complete_session(session_id):
@@ -267,19 +295,7 @@ def get_active_session_endpoint():
     
     return jsonify({
         "hasActiveSession": True,
-        "activeSession": {
-            "id": active_session["id"],
-            "type": active_session["type"],
-            "status": active_session["status"],
-            "durationMinutes": active_session["durationMinutes"],
-            "remainingSeconds": remaining,
-            "elapsedSeconds": active_session["elapsedSeconds"],
-            "estimatedEndTime": (datetime.now(timezone.utc) + timedelta(seconds=remaining)).isoformat().replace('+00:00', 'Z') if remaining > 0 else None,
-            "progressPercentage": (active_session["elapsedSeconds"] / (active_session["durationMinutes"] * 60)) * 100,
-            "startTime": active_session["startTime"],
-            "lastUpdated": active_session["lastUpdated"],
-            "notes": active_session["notes"]
-        }
+        "activeSession": serialize_session(active_session)
     })
 
 @app.route('/api/sessions/<int:session_id>', methods=['GET'])
@@ -288,6 +304,7 @@ def get_session(session_id):
     if not session:
         return jsonify({"error": "Session not found"}), 404
     
+    serialized = serialize_session(session)
     return jsonify({
         "id": session["id"],
         "type": session["type"],
@@ -296,10 +313,10 @@ def get_session(session_id):
         "isCompleted": session["isCompleted"],
         "notes": session["notes"],
         "status": session["status"],
-        "remainingSeconds": calculate_remaining_seconds(session),
-        "elapsedSeconds": session["elapsedSeconds"],
-        "estimatedEndTime": (datetime.now(timezone.utc) + timedelta(seconds=calculate_remaining_seconds(session))).isoformat().replace('+00:00', 'Z') if calculate_remaining_seconds(session) > 0 else None,
-        "progressPercentage": (session["elapsedSeconds"] / (session["durationMinutes"] * 60)) * 100,
+        "remainingSeconds": serialized["remainingSeconds"],
+        "elapsedSeconds": serialized["elapsedSeconds"],
+        "estimatedEndTime": serialized["estimatedEndTime"],
+        "progressPercentage": serialized["progressPercentage"],
         "lastUpdated": session["lastUpdated"]
     })
 
@@ -358,17 +375,19 @@ def health_check():
 
 @app.route('/debug/sessions', methods=['GET'])
 def debug_sessions():
-    return jsonify({
-        "total_sessions": len(sessions),
-        "sessions": [{
-            "id": s["id"],
-            "type": s["type"],
-            "status": s["status"],
-            "isCompleted": s["isCompleted"],
-            "remainingSeconds": calculate_remaining_seconds(s),
-            "elapsedSeconds": s["elapsedSeconds"]
-        } for s in sessions]
-    })
+    if app.debug:
+        return jsonify({
+            "total_sessions": len(sessions),
+            "sessions": [{
+                "id": s["id"],
+                "type": s["type"],
+                "status": s["status"],
+                "isCompleted": s["isCompleted"],
+                "remainingSeconds": calculate_remaining_seconds(s),
+                "elapsedSeconds": calculate_elapsed_seconds(s)
+            } for s in sessions]
+        })
+    return jsonify({"error": "Not found"}), 404
 
 if __name__ == '__main__':
     debug_mode = os.getenv('FLASK_ENV', 'production') == 'development'
